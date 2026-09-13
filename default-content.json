@@ -1,0 +1,47 @@
+{
+  "hero": {
+    "title": {"ml": "അറിവിന്റെ വേരുകൾ, വായനയുടെ ശാഖകൾ", "en": "Roots of knowledge, branches of reading"},
+    "body": {"ml": "1996-ൽ കേരളാദിത്യപുരത്ത് സ്ഥാപിതമായ ജനത വായനശാല & ലൈബ്രറി, നാട്ടിലെ വായനക്കാർക്കും വിദ്യാർത്ഥികൾക്കും പുസ്തകങ്ങൾ, ആനുകാലികങ്ങൾ, പഠനമുറി എന്നിവ സൗജന്യമായി ലഭ്യമാക്കുന്നു. ഓരോ ആഴ്ചയും പുതിയ പുസ്തകങ്ങൾ വിതരണം ചെയ്യുന്നു.", "en": "Janatha Reading Room & Library in Keraladithyapuram gives readers and students free access to books, periodicals, and a quiet study space. New books are distributed to members every week."}
+  },
+  "stats": {
+    "reg": {"ml": "3090", "en": "3090"},
+    "founded": {"ml": "—", "en": "—"},
+    "members": {"ml": "—", "en": "—"}
+  },
+  "books": [
+    {"day": {"ml": "തിങ്കൾ", "en": "Monday"}, "title": {"ml": "ഖസാക്കിന്റെ ഇതിഹാസം", "en": "Khasakkinte Itihasam"}, "author": {"ml": "ഒ.വി. വിജയൻ", "en": "O.V. Vijayan"}, "tag": {"ml": "നോവൽ", "en": "Novel"}},
+    {"day": {"ml": "ചൊവ്വ", "en": "Tuesday"}, "title": {"ml": "ചെമ്മീൻ", "en": "Chemmeen"}, "author": {"ml": "തകഴി ശിവശങ്കരപ്പിള്ള", "en": "Thakazhi Sivasankara Pillai"}, "tag": {"ml": "നോവൽ", "en": "Novel"}},
+    {"day": {"ml": "ബുധൻ", "en": "Wednesday"}, "title": {"ml": "ആരാച്ചാർ", "en": "Aarachar"}, "author": {"ml": "കെ.ആർ. മീര", "en": "K.R. Meera"}, "tag": {"ml": "നോവൽ", "en": "Novel"}},
+    {"day": {"ml": "വ്യാഴം", "en": "Thursday"}, "title": {"ml": "ബാല്യകാലസഖി", "en": "Balyakalasakhi"}, "author": {"ml": "വൈക്കം മുഹമ്മദ് ബഷീർ", "en": "Vaikom Muhammad Basheer"}, "tag": {"ml": "നോവൽ", "en": "Novel"}},
+    {"day": {"ml": "വെള്ളി", "en": "Friday"}, "title": {"ml": "ഒരു ദേശത്തിന്റെ കഥ", "en": "Oru Desathinte Katha"}, "author": {"ml": "എസ്.കെ. പൊറ്റെക്കാട്ട്", "en": "S.K. Pottekkatt"}, "tag": {"ml": "നോവൽ", "en": "Novel"}},
+    {"day": {"ml": "ശനി", "en": "Saturday"}, "title": {"ml": "മാർട്ടിൻ ഈഡൻ", "en": "Martin Eden"}, "author": {"ml": "ജാക്ക് ലണ്ടൻ", "en": "Jack London"}, "tag": {"ml": "വിവർത്തനം", "en": "Translation"}},
+    {"day": {"ml": "ഞായർ", "en": "Sunday"}, "title": {"ml": "നാലുകെട്ട്", "en": "Naalukettu"}, "author": {"ml": "എം.ടി. വാസുദേവൻ നായർ", "en": "M.T. Vasudevan Nair"}, "tag": {"ml": "നോവൽ", "en": "Novel"}}
+  ],
+  "building": {
+    "progressPercent": 55,
+    "updates": [
+      {"date": "", "image": "", "title": {"ml": "അടിത്തറ പണി പൂർത്തിയായി", "en": "Foundation work completed"}, "body": {"ml": "പുതിയ കെട്ടിടത്തിന്റെ അടിത്തറ പണികൾ പൂർത്തിയാക്കി.", "en": "Foundation work for the new building has been finished."}},
+      {"date": "", "image": "", "title": {"ml": "ചുവരുകൾ ഉയരുന്നു", "en": "Walls under construction"}, "body": {"ml": "ഒന്നാം നിലയുടെ ചുവരുകൾ നിർമ്മാണത്തിലാണ്.", "en": "First-floor walls are currently being built."}},
+      {"date": "", "image": "", "title": {"ml": "ഫണ്ട് ശേഖരണം തുടരുന്നു", "en": "Fundraising ongoing"}, "body": {"ml": "നാട്ടുകാരുടെയും അംഗങ്ങളുടെയും സഹായത്തോടെ ഫണ്ട് ശേഖരണം തുടരുന്നു.", "en": "Fundraising continues with support from local residents and members."}},
+      {"date": "", "image": "", "title": {"ml": "ലക്ഷ്യ പൂർത്തീകരണം", "en": "Target completion"}, "body": {"ml": "തീയതി പിന്നീട് അറിയിക്കും.", "en": "Target date to be announced."}}
+    ]
+  },
+  "sports": [
+    {"title": {"ml": "ബാഡ്മിന്റൺ പരിശീലനം", "en": "Badminton coaching"}, "body": {"ml": "ആഴ്ചയിൽ മൂന്ന് ദിവസം യുവാക്കൾക്കായി പരിശീലനം.", "en": "Training three days a week for youth members."}},
+    {"title": {"ml": "ഫുട്ബോൾ ഗ്രൗണ്ട്", "en": "Football ground"}, "body": {"ml": "വൈകുന്നേരങ്ങളിൽ പരിശീലനത്തിനും കളികൾക്കുമായി ലഭ്യമാണ്.", "en": "Available for practice and matches in the evenings."}},
+    {"title": {"ml": "അത്‌ലറ്റിക്സ്", "en": "Athletics"}, "body": {"ml": "ട്രാക്ക് & ഫീൽഡ് ഇനങ്ങളിൽ പരിശീലനം നൽകുന്നു.", "en": "Training offered in track and field events."}},
+    {"title": {"ml": "വാർഷിക കായികമേള", "en": "Annual sports meet"}, "body": {"ml": "എല്ലാ വർഷവും നാട്ടിലെ എല്ലാവർക്കുമായി കായികമേള സംഘടിപ്പിക്കുന്നു.", "en": "An annual sports meet is organised for the whole community."}}
+  ],
+  "about": {
+    "p1": {"ml": "ജനത വായനശാല & ലൈബ്രറി കേരളാദിത്യപുരത്തെ ഒരു പൊതു വായനശാലയാണ്. നാട്ടിലെ എല്ലാ പ്രായക്കാർക്കും വായനയും അറിവും സൗജന്യമായി ലഭ്യമാക്കുക എന്നതാണ് ലക്ഷ്യം. പുസ്തകങ്ങൾ, പത്രങ്ങൾ, മാസികകൾ, പഠനമുറി എന്നിവ ഇവിടെ ലഭ്യമാണ്.", "en": "Janatha Reading Room & Library is a public library serving Keraladithyapuram. Our goal is to make reading and knowledge freely available to people of every age, with books, newspapers, magazines, and a quiet study room."},
+    "p2": {"ml": "ലൈബ്രറി കേരള സംസ്ഥാന ലൈബ്രറി കൗൺസിലിൽ രജിസ്റ്റർ ചെയ്തിട്ടുണ്ട്. അംഗത്വം, പുസ്തക സംഭാവന, സന്നദ്ധപ്രവർത്തനം എന്നിവയിൽ താല്പര്യമുള്ളവർക്ക് ലൈബ്രറി ഭാരവാഹികളെ ബന്ധപ്പെടാവുന്നതാണ്.", "en": "The library is registered with the Kerala State Library Council. Those interested in membership, donating books, or volunteering are welcome to contact the library committee."},
+    "meta": [
+      {"lbl": {"ml": "രജിസ്ട്രേഷൻ നമ്പർ", "en": "Registration No."}, "val": {"ml": "3090", "en": "3090"}},
+      {"lbl": {"ml": "സ്ഥലം", "en": "Location"}, "val": {"ml": "കേരളാദിത്യപുരം", "en": "Keraladithyapuram"}},
+      {"lbl": {"ml": "ബന്ധപ്പെടേണ്ട", "en": "Contact"}, "val": {"ml": "ലൈബ്രറി ഭാരവാഹികൾ", "en": "Library committee"}}
+    ]
+  },
+  "footer": {
+    "address": {"ml": "കേരളാദിത്യപുരം · കേരളം", "en": "Keraladithyapuram · Kerala"}
+  }
+}
