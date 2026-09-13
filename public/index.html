@@ -33,6 +33,12 @@
   .lang-btn.active{background:var(--gold);color:var(--maroon-deep);}
   .login-btn{background:var(--maroon);color:#fceecb;border:1px solid var(--gold);padding:9px 20px;border-radius:8px;font-weight:600;font-size:0.85rem;cursor:pointer;transition:transform 0.15s ease, background 0.2s ease;}
   .login-btn:hover{background:var(--maroon-deep);transform:translateY(-1px);}
+  .notice-ticker{background:var(--maroon);border-top:1px solid rgba(232,207,138,0.45);border-bottom:1px solid rgba(232,207,138,0.45);overflow:hidden;white-space:nowrap;margin:0 2px;border-radius:8px 8px 0 0;}
+  .notice-ticker[hidden]{display:none;}
+  .notice-ticker-track{display:inline-block;padding-left:100%;animation:ticker-scroll 26s linear infinite;}
+  .notice-ticker:hover .notice-ticker-track{animation-play-state:paused;}
+  .notice-ticker-track span{display:inline-block;margin:0 36px;padding:9px 0;font-size:0.82rem;font-weight:600;color:#fceecb;letter-spacing:0.2px;}
+  @keyframes ticker-scroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
   .tabs{display:flex;gap:6px;overflow-x:auto;padding:0 2px;border-bottom:3px solid var(--gold);}
   .tab-btn{background:rgba(244,236,216,0.12);color:#e7ddc4;border:none;padding:12px 20px 10px;font-size:0.9rem;font-weight:600;cursor:pointer;border-radius:10px 10px 0 0;white-space:nowrap;position:relative;top:2px;transition:background 0.2s ease, color 0.2s ease;}
   .tab-btn.active{background:var(--paper);color:var(--maroon-deep);}
@@ -148,6 +154,10 @@
       <button class="login-btn" id="loginOpenBtn" data-i18n="loginBtn"></button>
     </div>
   </header>
+
+  <div class="notice-ticker" id="noticeTicker" hidden>
+    <div class="notice-ticker-track" id="noticeTickerTrack"></div>
+  </div>
 
   <nav class="tabs">
     <button class="tab-btn active" data-tab="home" data-i18n="tabHome"></button>
@@ -323,6 +333,10 @@ const dict = {
   adminWrongPassword:{ml:"തെറ്റായ പാസ്‌വേഡ്",en:"Incorrect password"},
   adminWarning:{ml:"പാസ്‌വേഡ് സെർവറിലാണ് പരിശോധിക്കുന്നത് (server.js-ൽ ADMIN_PASSWORD എന്ന എൻവയോൺമെന്റ് വേരിയബിളായി സെറ്റ് ചെയ്യുക). സേവ് ചെയ്യുന്ന മാറ്റങ്ങൾ ഡാറ്റാബേസിൽ സൂക്ഷിക്കപ്പെടും, എല്ലാ സന്ദർശകർക്കും കാണാം.",en:"The password is checked on the server (set it as the ADMIN_PASSWORD environment variable in server.js). Saved changes are stored in the database and visible to every visitor."},
   secSiteSettings:{ml:"സൈറ്റ് വിവരങ്ങൾ",en:"Site Settings"},
+  secNotices:{ml:"സ്ക്രോൾ അറിയിപ്പുകൾ",en:"Scrolling Notices"},
+  lblNoticeText:{ml:"അറിയിപ്പ്",en:"Notice"},
+  lblNoticeActive:{ml:"സജീവം (സൈറ്റിൽ കാണിക്കുക)",en:"Active (show on site)"},
+  btnAddNotice:{ml:"+ അറിയിപ്പ് ചേർക്കുക",en:"+ Add notice"},
   secBooks:{ml:"ഈ ആഴ്ചയിലെ പുസ്തകങ്ങൾ",en:"This Week's Books"},
   secBuilding:{ml:"കെട്ടിട നിർമ്മാണ വിവരങ്ങൾ",en:"Building Updates"},
   secSports:{ml:"സ്പോർട്സ് പ്രവർത്തനങ്ങൾ",en:"Sports Activities"},
@@ -364,6 +378,10 @@ const dict = {
 };
 
 const defaultContent = {
+  notices:[
+    {id:"n1", text:{ml:"പുതിയ പുസ്തകങ്ങൾ ഈ ആഴ്ച ലഭ്യമാണ് — ലൈബ്രറി സന്ദർശിക്കുക.",en:"New books available this week — visit the library."}, active:true},
+    {id:"n2", text:{ml:"കെട്ടിട നിർമ്മാണ ഫണ്ടിലേക്ക് സംഭാവന നൽകാൻ താല്പര്യമുള്ളവർ ഭാരവാഹികളെ ബന്ധപ്പെടുക.",en:"Those interested in donating to the building fund may contact the committee."}, active:true}
+  ],
   hero:{title:{ml:"അറിവിന്റെ വേരുകൾ, വായനയുടെ ശാഖകൾ",en:"Roots of knowledge, branches of reading"},
         body:{ml:"1996-ൽ കേരളാദിത്യപുരത്ത് സ്ഥാപിതമായ ജനത വായനശാല & ലൈബ്രറി, നാട്ടിലെ വായനക്കാർക്കും വിദ്യാർത്ഥികൾക്കും പുസ്തകങ്ങൾ, ആനുകാലികങ്ങൾ, പഠനമുറി എന്നിവ സൗജന്യമായി ലഭ്യമാക്കുന്നു. ഓരോ ആഴ്ചയും പുതിയ പുസ്തകങ്ങൾ വിതരണം ചെയ്യുന്നു.",en:"Janatha Reading Room & Library in Keraladithyapuram gives readers and students free access to books, periodicals, and a quiet study space. New books are distributed to members every week."}},
   stats:{reg:{ml:"3090",en:"3090"}, founded:{ml:"—",en:"—"}, members:{ml:"—",en:"—"}},
@@ -409,6 +427,7 @@ async function loadContent(){
   try{
     const res = await fetch("/api/content");
     if(res.ok) content = await res.json();
+    if(!Array.isArray(content.notices)) content.notices = [];
   }catch(e){
     console.warn("Could not reach the server, showing default sample content.", e);
   }
@@ -465,7 +484,24 @@ function formatDate(iso){
   return d.toLocaleDateString(currentLang==="ml" ? "ml-IN" : "en-IN", {year:"numeric", month:"short", day:"numeric"});
 }
 
+function renderNoticeTicker(){
+  const wrap = document.getElementById("noticeTicker");
+  const track = document.getElementById("noticeTickerTrack");
+  const active = (content.notices||[]).filter(n=>n.active && (n.text[currentLang]||"").trim());
+  if(!active.length){
+    wrap.hidden = true;
+    track.innerHTML = "";
+    return;
+  }
+  const itemsHtml = active.map(n=>`<span>${n.text[currentLang].replace(/</g,"&lt;")}</span>`).join("");
+  // duplicate the sequence so the loop (0% -> -50%) is seamless
+  track.innerHTML = itemsHtml + itemsHtml;
+  track.style.animationDuration = Math.max(18, active.length * 10) + "s";
+  wrap.hidden = false;
+}
+
 function renderPublic(){
+  renderNoticeTicker();
   document.getElementById("heroTitleEl").textContent = content.hero.title[currentLang];
   document.getElementById("heroBodyEl").textContent = content.hero.body[currentLang];
   document.getElementById("statRegEl").textContent = content.stats.reg[currentLang];
@@ -551,6 +587,19 @@ function renderAdminEditor(){
     <div class="field-row">${biField("lblStatFounded", content.stats.founded, "stats.founded")}</div>
     <div class="field-row">${biField("lblStatMembers", content.stats.members, "stats.members")}</div>
   </div>`;
+
+  html += `<div class="admin-section"><h3>${dict.secNotices[currentLang]}</h3><div id="noticesAdminList">`;
+  (content.notices||[]).forEach((n,i)=>{
+    html += `<div class="admin-item" data-idx="${i}">
+      <button type="button" class="remove-btn" data-remove="notices:${i}">${dict.btnRemove[currentLang]}</button>
+      <div class="field-row">${biField("lblNoticeText", n.text, "notices."+i+".text")}</div>
+      <label style="display:flex;align-items:center;gap:7px;font-size:0.8rem;color:var(--ink-soft);margin-top:6px;">
+        <input type="checkbox" data-path="notices.${i}.active" ${n.active ? "checked" : ""}>
+        ${dict.lblNoticeActive[currentLang]}
+      </label>
+    </div>`;
+  });
+  html += `</div><button type="button" class="add-btn" id="addNoticeBtn">${dict.btnAddNotice[currentLang]}</button></div>`;
 
   html += `<div class="admin-section"><h3>${dict.secBooks[currentLang]}</h3><div id="booksAdminList">`;
   content.books.forEach((b,i)=>{
@@ -661,13 +710,24 @@ function fileToCompressedDataURL(file, maxDim=900, quality=0.72){
 function collectFormIntoContent(){
   document.querySelectorAll("#adminEditorView [data-path]").forEach(inp=>{
     const path = inp.getAttribute("data-path");
-    let val = inp.value;
-    if(inp.type === "number") val = Number(val);
+    let val;
+    if(inp.type === "checkbox") val = inp.checked;
+    else if(inp.type === "number") val = Number(inp.value);
+    else val = inp.value;
     setPathValue(content, path, val);
   });
 }
 
+function generateId(){
+  return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ("n" + Date.now() + Math.random().toString(36).slice(2, 8));
+}
+
 function attachAdminHandlers(){
+  document.getElementById("addNoticeBtn").addEventListener("click", ()=>{
+    collectFormIntoContent();
+    content.notices.push({id:generateId(), text:{ml:"",en:""}, active:true});
+    renderAdminEditor();
+  });
   document.getElementById("addBookBtn").addEventListener("click", ()=>{
     collectFormIntoContent();
     content.books.push({day:{ml:"",en:""}, title:{ml:"",en:""}, author:{ml:"",en:""}, tag:{ml:"",en:""}});
@@ -711,6 +771,7 @@ function attachAdminHandlers(){
       collectFormIntoContent();
       const [arrName, idxStr] = btn.getAttribute("data-remove").split(":");
       const idx = Number(idxStr);
+      if(arrName==="notices") content.notices.splice(idx,1);
       if(arrName==="books") content.books.splice(idx,1);
       if(arrName==="updates") content.building.updates.splice(idx,1);
       if(arrName==="sports") content.sports.splice(idx,1);

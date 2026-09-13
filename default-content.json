@@ -3,6 +3,10 @@
     "title": {"ml": "അറിവിന്റെ വേരുകൾ, വായനയുടെ ശാഖകൾ", "en": "Roots of knowledge, branches of reading"},
     "body": {"ml": "1996-ൽ കേരളാദിത്യപുരത്ത് സ്ഥാപിതമായ ജനത വായനശാല & ലൈബ്രറി, നാട്ടിലെ വായനക്കാർക്കും വിദ്യാർത്ഥികൾക്കും പുസ്തകങ്ങൾ, ആനുകാലികങ്ങൾ, പഠനമുറി എന്നിവ സൗജന്യമായി ലഭ്യമാക്കുന്നു. ഓരോ ആഴ്ചയും പുതിയ പുസ്തകങ്ങൾ വിതരണം ചെയ്യുന്നു.", "en": "Janatha Reading Room & Library in Keraladithyapuram gives readers and students free access to books, periodicals, and a quiet study space. New books are distributed to members every week."}
   },
+  "notices": [
+    {"id": "n1", "text": {"ml": "പുതിയ പുസ്തകങ്ങൾ ഈ ആഴ്ച ലഭ്യമാണ് — ലൈബ്രറി സന്ദർശിക്കുക.", "en": "New books available this week — visit the library."}, "active": true},
+    {"id": "n2", "text": {"ml": "കെട്ടിട നിർമ്മാണ ഫണ്ടിലേക്ക് സംഭാവന നൽകാൻ താല്പര്യമുള്ളവർ ഭാരവാഹികളെ ബന്ധപ്പെടുക.", "en": "Those interested in donating to the building fund may contact the committee."}, "active": true}
+  ],
   "stats": {
     "reg": {"ml": "3090", "en": "3090"},
     "founded": {"ml": "—", "en": "—"},

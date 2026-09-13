@@ -5,6 +5,7 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const { DatabaseSync } = require('node:sqlite');
 
 const PORT = process.env.PORT || 3000;
@@ -44,6 +45,24 @@ function getContent() {
 function setContent(dataStr) {
   db.prepare('UPDATE site_content SET data = ?, updated_at = ? WHERE id = 1')
     .run(dataStr, new Date().toISOString());
+}
+
+// Convenience helpers that work with a parsed object instead of a raw string.
+// Used by the /api/admin/notices endpoints below so the admin can add/remove
+// a single "scroll" (ticker notice) without having to resend the entire
+// site content blob.
+function getContentObj() {
+  const obj = JSON.parse(getContent());
+  if (!Array.isArray(obj.notices)) obj.notices = [];
+  return obj;
+}
+
+function setContentObj(obj) {
+  setContent(JSON.stringify(obj));
+}
+
+function checkAdminPassword(req) {
+  return req.headers['x-admin-password'] === ADMIN_PASSWORD;
 }
 
 // ---- Tiny static file server for the /public folder ----
@@ -112,6 +131,95 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(400, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Invalid JSON body' }));
     }
+    return;
+  }
+
+  // Admin: add a new scrolling notice ("scroll")
+  if (req.url === '/api/admin/notices' && req.method === 'POST') {
+    if (!checkAdminPassword(req)) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+    try {
+      const body = await readBody(req);
+      const { text } = JSON.parse(body);
+      if (!text || (!text.ml && !text.en)) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Notice must include text.ml and/or text.en' }));
+        return;
+      }
+      const content = getContentObj();
+      const notice = {
+        id: crypto.randomUUID(),
+        text: { ml: text.ml || '', en: text.en || '' },
+        active: true,
+      };
+      content.notices.push(notice);
+      setContentObj(content);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: true, notice, notices: content.notices }));
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Invalid request body' }));
+    }
+    return;
+  }
+
+  // Admin: toggle a notice active/inactive, or edit its text
+  if (req.url.match(/^\/api\/admin\/notices\/[^/]+$/) && req.method === 'PATCH') {
+    if (!checkAdminPassword(req)) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+    const id = decodeURIComponent(req.url.split('/').pop());
+    try {
+      const body = await readBody(req);
+      const updates = JSON.parse(body); // e.g. { active: false } or { text: { ml, en } }
+      const content = getContentObj();
+      const notice = content.notices.find((n) => n.id === id);
+      if (!notice) {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Notice not found' }));
+        return;
+      }
+      if (typeof updates.active === 'boolean') notice.active = updates.active;
+      if (updates.text) {
+        notice.text = {
+          ml: updates.text.ml ?? notice.text.ml,
+          en: updates.text.en ?? notice.text.en,
+        };
+      }
+      setContentObj(content);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: true, notice, notices: content.notices }));
+    } catch (e) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Invalid request body' }));
+    }
+    return;
+  }
+
+  // Admin: delete a scrolling notice
+  if (req.url.match(/^\/api\/admin\/notices\/[^/]+$/) && req.method === 'DELETE') {
+    if (!checkAdminPassword(req)) {
+      res.writeHead(401, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Unauthorized' }));
+      return;
+    }
+    const id = decodeURIComponent(req.url.split('/').pop());
+    const content = getContentObj();
+    const before = content.notices.length;
+    content.notices = content.notices.filter((n) => n.id !== id);
+    if (content.notices.length === before) {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Notice not found' }));
+      return;
+    }
+    setContentObj(content);
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ ok: true, notices: content.notices }));
     return;
   }
 

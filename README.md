@@ -31,6 +31,45 @@ Then open **http://localhost:3000** in your browser.
 The first time it runs, it creates `library.db` and fills it with the sample
 content. From then on, all admin edits are saved into that file.
 
+## Scrolling notices ("scrolls")
+
+The site content now includes a `notices` array — short bilingual messages
+meant to be shown as a scrolling ticker/marquee on the site (e.g. "New books
+available this week"). Each one looks like:
+
+```json
+{ "id": "n1", "text": { "ml": "...", "en": "..." }, "active": true }
+```
+
+They come back as part of `GET /api/content` (under `data.notices`), and the
+frontend just needs to render the ones with `active: true` as a scrolling
+strip — nothing else to do on the backend for display.
+
+To manage them without resending the whole site content, three admin-only
+endpoints are available (all require the `x-admin-password` header):
+
+- `POST /api/admin/notices` — add a new one
+  ```
+  curl -X POST http://localhost:3000/api/admin/notices \
+    -H "x-admin-password: vayanashala2024" \
+    -H "Content-Type: application/json" \
+    -d '{"text":{"ml":"...","en":"..."}}'
+  ```
+- `PATCH /api/admin/notices/:id` — edit text and/or toggle it on/off
+  ```
+  curl -X PATCH http://localhost:3000/api/admin/notices/n1 \
+    -H "x-admin-password: vayanashala2024" \
+    -d '{"active": false}'
+  ```
+- `DELETE /api/admin/notices/:id` — remove one
+  ```
+  curl -X DELETE http://localhost:3000/api/admin/notices/n1 \
+    -H "x-admin-password: vayanashala2024"
+  ```
+
+If `public/index.html` doesn't have an admin UI for this yet, these
+endpoints are ready to be wired up to a simple "add scroll" form.
+
 ## Using the admin panel
 
 1. Open the site, click the **Admin** tab
