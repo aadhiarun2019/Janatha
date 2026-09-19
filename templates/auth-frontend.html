@@ -1,0 +1,323 @@
+<!--
+    REPLACE THE OLD LOGIN MODAL IN index.html WITH THIS AUTH MODAL.
+    The existing Login button should call: openAuthModal()
+-->
+
+<div id="authModal" class="auth-modal" style="display:none;">
+    <div class="auth-modal-backdrop" onclick="closeAuthModal()"></div>
+
+    <div class="auth-modal-box">
+        <button class="auth-close" onclick="closeAuthModal()">&times;</button>
+
+        <div id="authChoice">
+            <h2>Login</h2>
+            <p>Select how you want to continue.</p>
+
+            <button class="auth-button" onclick="showMemberLogin()">
+                Member Login
+            </button>
+
+            <button class="auth-button" onclick="showAdminLogin()">
+                Admin Login
+            </button>
+
+            <p>
+                New member?
+                <a href="#" onclick="showMemberRegister(); return false;">
+                    Create an account
+                </a>
+            </p>
+        </div>
+
+        <form id="memberLoginForm" style="display:none;">
+            <h2>Member Login</h2>
+
+            <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                required
+            >
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required
+            >
+
+            <button class="auth-button" type="submit">
+                Login
+            </button>
+
+            <p id="memberLoginMessage"></p>
+
+            <a href="#" onclick="showMemberRegister(); return false;">
+                New member? Register
+            </a>
+
+            <br><br>
+
+            <a href="#" onclick="showAuthChoice(); return false;">
+                Back
+            </a>
+        </form>
+
+        <form id="memberRegisterForm" style="display:none;">
+            <h2>Member Registration</h2>
+
+            <input
+                type="text"
+                name="full_name"
+                placeholder="Full name"
+                required
+            >
+
+            <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                required
+            >
+
+            <input
+                type="tel"
+                name="phone"
+                placeholder="Phone number"
+            >
+
+            <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                required
+            >
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Password (minimum 8 characters)"
+                required
+                minlength="8"
+            >
+
+            <input
+                type="password"
+                name="confirm_password"
+                placeholder="Confirm password"
+                required
+                minlength="8"
+            >
+
+            <button class="auth-button" type="submit">
+                Create Account
+            </button>
+
+            <p id="registerMessage"></p>
+
+            <a href="#" onclick="showMemberLogin(); return false;">
+                Already registered? Login
+            </a>
+        </form>
+
+        <form id="adminLoginForm" style="display:none;">
+            <h2>Admin Login</h2>
+
+            <input
+                type="text"
+                name="username"
+                placeholder="Admin username"
+                required
+            >
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Admin password"
+                required
+            >
+
+            <button class="auth-button" type="submit">
+                Admin Login
+            </button>
+
+            <p id="adminLoginMessage"></p>
+
+            <a href="#" onclick="showAuthChoice(); return false;">
+                Back
+            </a>
+        </form>
+    </div>
+</div>
+
+<style>
+.auth-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+}
+
+.auth-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,.65);
+}
+
+.auth-modal-box {
+    position: relative;
+    width: min(420px, calc(100% - 30px));
+    margin: 8vh auto;
+    background: white;
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 15px 50px rgba(0,0,0,.3);
+    z-index: 2;
+}
+
+.auth-close {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    border: 0;
+    background: transparent;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.auth-modal-box input {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 7px;
+}
+
+.auth-button {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 0;
+    border-radius: 7px;
+    cursor: pointer;
+    background: #222;
+    color: white;
+}
+
+.auth-modal-box a {
+    cursor: pointer;
+}
+</style>
+
+<script>
+const authModal = document.getElementById("authModal");
+
+function openAuthModal() {
+    authModal.style.display = "block";
+    showAuthChoice();
+}
+
+function closeAuthModal() {
+    authModal.style.display = "none";
+}
+
+function hideAuthForms() {
+    document.getElementById("authChoice").style.display = "none";
+    document.getElementById("memberLoginForm").style.display = "none";
+    document.getElementById("memberRegisterForm").style.display = "none";
+    document.getElementById("adminLoginForm").style.display = "none";
+}
+
+function showAuthChoice() {
+    hideAuthForms();
+    document.getElementById("authChoice").style.display = "block";
+}
+
+function showMemberLogin() {
+    hideAuthForms();
+    document.getElementById("memberLoginForm").style.display = "block";
+}
+
+function showMemberRegister() {
+    hideAuthForms();
+    document.getElementById("memberRegisterForm").style.display = "block";
+}
+
+function showAdminLogin() {
+    hideAuthForms();
+    document.getElementById("adminLoginForm").style.display = "block";
+}
+
+document.getElementById("memberLoginForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const form = new FormData(event.target);
+
+    const response = await fetch("/api/member/login", {
+        method: "POST",
+        body: form
+    });
+
+    const data = await response.json();
+
+    const message = document.getElementById("memberLoginMessage");
+
+    if (data.error) {
+        message.textContent = data.error;
+        return;
+    }
+
+    window.location.href = "/member";
+});
+
+document.getElementById("memberRegisterForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const form = new FormData(event.target);
+
+    const response = await fetch("/api/member/register", {
+        method: "POST",
+        body: form
+    });
+
+    const data = await response.json();
+
+    const message = document.getElementById("registerMessage");
+
+    if (data.error) {
+        message.textContent = data.error;
+        return;
+    }
+
+    message.textContent = data.message;
+
+    event.target.reset();
+
+    setTimeout(() => {
+        showMemberLogin();
+    }, 1000);
+});
+
+document.getElementById("adminLoginForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const form = new FormData(event.target);
+
+    const response = await fetch("/admin/login", {
+        method: "POST",
+        body: form
+    });
+
+    const data = await response.json();
+
+    const message = document.getElementById("adminLoginMessage");
+
+    if (data.error) {
+        message.textContent = data.error;
+        return;
+    }
+
+    window.location.href = "/admin";
+});
+</script>

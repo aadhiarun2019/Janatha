@@ -844,10 +844,14 @@ document.getElementById("registerForm").addEventListener("submit", (e)=>{
   document.getElementById("registerMsg").textContent = currentLang==="ml" ? "സാമ്പിൾ: അപേക്ഷ സ്വീകരിച്ചു (ഡെമോ)" : "Sample: Application received (demo)";
 });
 
-(async function init(){
-  await loadContent();
+document.addEventListener("DOMContentLoaded", async ()=>{
+  // Render the built-in content immediately so the page is never blank on startup.
   applyLang("ml");
-})();
+
+  // Then load the latest content from the backend, if available, and render it again.
+  await loadContent();
+  renderPublic();
+});
 </script>
 </body>
 </html>

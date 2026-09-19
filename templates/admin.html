@@ -1,291 +1,714 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Janatha Library - Admin</title>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Janatha Library Admin</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
+
 </head>
+
 
 <body>
 
+
 <div class="container py-5">
 
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
 
-        <h1>Janatha Library Admin</h1>
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
 
-        <a href="/" class="btn btn-outline-secondary">
+    <div
+        class="d-flex justify-content-between align-items-center mb-5"
+    >
+
+        <h1>
+            Janatha Library Admin
+        </h1>
+
+        <a
+            href="/"
+            class="btn btn-outline-secondary"
+        >
             View Website
         </a>
 
     </div>
 
 
-    <!-- Add Notice -->
-    <div class="card mb-4">
+    <!-- =====================================================
+         NOTICES
+    ====================================================== -->
+
+    <div class="card mb-5">
 
         <div class="card-header">
-            <h4 class="mb-0">Add Notice</h4>
+
+            <h4>
+                Add Notice
+            </h4>
+
         </div>
+
 
         <div class="card-body">
 
+            <div class="alert alert-info">
+
+                Enter English, Malayalam, or both.
+                At least one language is required.
+
+            </div>
+
+
             <form id="noticeForm">
 
-                <!-- English -->
-                <div class="mb-3">
 
-                    <label
-                        for="title_en"
-                        class="form-label"
-                    >
-                        English Notice
-                    </label>
-
-                    <input
-                        type="text"
-                        id="title_en"
-                        class="form-control"
-                        placeholder="Enter English notice"
-                        required
-                    >
-
-                </div>
+                <input
+                    id="title_en"
+                    class="form-control mb-3"
+                    placeholder="English notice (optional)"
+                >
 
 
-                <!-- Malayalam -->
-                <div class="mb-3">
-
-                    <label
-                        for="title_ml"
-                        class="form-label"
-                    >
-                        Malayalam Notice
-                    </label>
-
-                    <input
-                        type="text"
-                        id="title_ml"
-                        class="form-control"
-                        placeholder="Enter Malayalam notice"
-                        required
-                    >
-
-                </div>
+                <input
+                    id="title_ml"
+                    class="form-control mb-3"
+                    placeholder="Malayalam notice (optional)"
+                >
 
 
                 <button
-                    type="submit"
                     class="btn btn-primary"
+                    type="submit"
                 >
                     Add Notice
                 </button>
 
+
             </form>
 
 
-            <!-- Success / Error message -->
             <div
-                id="message"
+                id="noticeMessage"
                 class="mt-3"
             ></div>
 
+
+            <hr>
+
+
+            <h5>
+                Existing Notices
+            </h5>
+
+
+            <div id="noticeList">
+
+                Loading...
+
+            </div>
+
+
         </div>
 
     </div>
 
 
-    <!-- Existing Notices -->
-    <div class="card">
+
+    <!-- =====================================================
+         BOOKS
+    ====================================================== -->
+
+    <div class="card mb-5">
+
 
         <div class="card-header">
-            <h4 class="mb-0">
-                Existing Notices
+
+            <h4>
+                Add Book
             </h4>
+
         </div>
+
 
         <div class="card-body">
 
-            <div id="noticeList">
-                Loading notices...
+
+            <div class="alert alert-info">
+
+                Enter the book title in English, Malayalam,
+                or both. At least one language is required.
+
             </div>
+
+
+            <form id="bookForm">
+
+
+                <input
+                    id="book_title_en"
+                    class="form-control mb-3"
+                    placeholder="English title (optional)"
+                >
+
+
+                <input
+                    id="book_title_ml"
+                    class="form-control mb-3"
+                    placeholder="Malayalam title (optional)"
+                >
+
+
+                <input
+                    id="book_author"
+                    class="form-control mb-3"
+                    placeholder="Author"
+                >
+
+
+                <textarea
+                    id="book_description_en"
+                    class="form-control mb-3"
+                    placeholder="English description (optional)"
+                    rows="3"
+                ></textarea>
+
+
+                <textarea
+                    id="book_description_ml"
+                    class="form-control mb-3"
+                    placeholder="Malayalam description (optional)"
+                    rows="3"
+                ></textarea>
+
+
+                <label class="form-label">
+
+                    Book Image
+
+                </label>
+
+
+                <input
+                    type="file"
+                    id="book_image"
+                    class="form-control mb-3"
+                    accept="image/jpeg,image/png,image/webp"
+                >
+
+
+                <button
+                    class="btn btn-success"
+                    type="submit"
+                >
+                    Add Book
+                </button>
+
+
+            </form>
+
+
+            <div
+                id="bookMessage"
+                class="mt-3"
+            ></div>
+
+
+            <hr>
+
+
+            <h5>
+                Existing Books
+            </h5>
+
+
+            <div
+                id="bookList"
+                class="row"
+            >
+
+                Loading...
+
+            </div>
+
 
         </div>
 
     </div>
 
+
+
+    <!-- =====================================================
+         BUILDING UPDATES
+    ====================================================== -->
+
+    <div class="card mb-5">
+
+
+        <div class="card-header">
+
+            <h4>
+                Add Building Update
+            </h4>
+
+        </div>
+
+
+        <div class="card-body">
+
+
+            <div class="alert alert-info">
+
+                Enter the title in English, Malayalam,
+                or both. At least one language is required.
+
+            </div>
+
+
+            <form id="buildingForm">
+
+
+                <input
+                    id="building_title_en"
+                    class="form-control mb-3"
+                    placeholder="English title (optional)"
+                >
+
+
+                <input
+                    id="building_title_ml"
+                    class="form-control mb-3"
+                    placeholder="Malayalam title (optional)"
+                >
+
+
+                <textarea
+                    id="building_description_en"
+                    class="form-control mb-3"
+                    placeholder="English description (optional)"
+                    rows="3"
+                ></textarea>
+
+
+                <textarea
+                    id="building_description_ml"
+                    class="form-control mb-3"
+                    placeholder="Malayalam description (optional)"
+                    rows="3"
+                ></textarea>
+
+
+                <label class="form-label">
+
+                    Construction Photo
+
+                </label>
+
+
+                <input
+                    type="file"
+                    id="building_image"
+                    class="form-control mb-3"
+                    accept="image/jpeg,image/png,image/webp"
+                >
+
+
+                <button
+                    class="btn btn-warning"
+                    type="submit"
+                >
+                    Add Building Update
+                </button>
+
+
+            </form>
+
+
+            <div
+                id="buildingMessage"
+                class="mt-3"
+            ></div>
+
+
+            <hr>
+
+
+            <h5>
+                Existing Building Updates
+            </h5>
+
+
+            <div id="buildingList">
+
+                Loading...
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         SITE SETTINGS
+    ====================================================== -->
+
+    <div class="card mb-5">
+
+
+        <div class="card-header">
+
+            <h4>
+                Site Settings
+            </h4>
+
+        </div>
+
+
+        <div class="card-body">
+
+
+            <p class="text-muted">
+
+                Manage bilingual website information such as
+                the library name, description, contact details,
+                address, opening hours and footer content.
+
+            </p>
+
+
+            <div class="alert alert-info">
+
+                Enter English, Malayalam, or both.
+                At least one language is required.
+
+            </div>
+
+
+            <form id="settingsForm">
+
+
+                <input
+                    id="setting_key"
+                    class="form-control mb-3"
+                    placeholder="Setting key (example: library_name)"
+                    required
+                >
+
+
+                <textarea
+                    id="setting_value_en"
+                    class="form-control mb-3"
+                    placeholder="English value (optional)"
+                    rows="3"
+                ></textarea>
+
+
+                <textarea
+                    id="setting_value_ml"
+                    class="form-control mb-3"
+                    placeholder="Malayalam value (optional)"
+                    rows="3"
+                ></textarea>
+
+
+                <button
+                    class="btn btn-dark"
+                    type="submit"
+                >
+                    Save Setting
+                </button>
+
+
+            </form>
+
+
+            <div
+                id="settingsMessage"
+                class="mt-3"
+            ></div>
+
+
+            <hr>
+
+
+            <h5>
+                Existing Settings
+            </h5>
+
+
+            <div id="settingsList">
+
+                Loading...
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
 </div>
+
 
 
 <script>
 
 
-// ========================================
-// LOAD EXISTING NOTICES
-// ========================================
-
-async function loadNotices() {
-
-    try {
-
-        const response = await fetch("/api/notices");
+// =========================================================
+// COMMON HELPERS
+// =========================================================
 
 
-        if (!response.ok) {
+function hasLanguageContent(
+    english,
+    malayalam
+) {
 
-            throw new Error(
-                "Failed to load notices"
-            );
+    const en =
+        english.trim();
 
-        }
+    const ml =
+        malayalam.trim();
 
-
-        const notices =
-            await response.json();
-
-
-        const list =
-            document.getElementById(
-                "noticeList"
-            );
+    return en !== "" || ml !== "";
+}
 
 
-        // No notices
-        if (notices.length === 0) {
+function showError(
+    elementId,
+    message
+) {
 
-            list.innerHTML = `
-                <p class="text-muted">
-                    No notices found.
-                </p>
-            `;
+    document
+        .getElementById(elementId)
+        .innerHTML = `
 
-            return;
-        }
+            <div class="alert alert-danger">
 
+                ${message}
 
-        // Clear old content
-        list.innerHTML = "";
+            </div>
 
-
-        // Display notices
-        notices.forEach(notice => {
-
-            const div =
-                document.createElement("div");
-
-
-            div.className =
-                "border rounded p-3 mb-3";
-
-
-            div.innerHTML = `
-
-                <div class="mb-2">
-
-                    <strong>
-                        English:
-                    </strong>
-
-                    <div>
-                        ${notice.title_en}
-                    </div>
-
-                </div>
-
-
-                <div class="mb-3">
-
-                    <strong>
-                        Malayalam:
-                    </strong>
-
-                    <div>
-                        ${notice.title_ml}
-                    </div>
-
-                </div>
-
-
-                <button
-                    class="btn btn-sm btn-danger"
-                    onclick="deleteNotice(${notice.id})"
-                >
-                    Delete
-                </button>
-
-            `;
-
-
-            list.appendChild(div);
-
-        });
-
-    }
-
-    catch (error) {
-
-        document.getElementById(
-            "noticeList"
-        ).innerHTML = `
-            <p class="text-danger">
-                Failed to load notices.
-            </p>
         `;
+}
 
-        console.error(error);
+
+// =========================================================
+// IMAGE UPLOAD
+// =========================================================
+
+
+async function uploadImage(file) {
+
+    if (!file) {
+
+        return null;
 
     }
+
+
+    const formData =
+        new FormData();
+
+
+    formData.append(
+        "file",
+        file
+    );
+
+
+    const response =
+        await fetch(
+            "/api/admin/upload",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+
+    const data =
+        await response.json();
+
+
+    if (
+        !response.ok ||
+        data.error
+    ) {
+
+        throw new Error(
+            data.error ||
+            "Image upload failed"
+        );
+
+    }
+
+
+    return data.url;
 
 }
 
 
-// ========================================
-// ADD NOTICE
-// ========================================
+
+// =========================================================
+// NOTICES
+// =========================================================
+
+
+async function loadNotices() {
+
+    const response =
+        await fetch(
+            "/api/notices"
+        );
+
+
+    const notices =
+        await response.json();
+
+
+    const list =
+        document.getElementById(
+            "noticeList"
+        );
+
+
+    list.innerHTML = "";
+
+
+    if (
+        notices.length === 0
+    ) {
+
+        list.innerHTML =
+            "<p>No notices found.</p>";
+
+        return;
+
+    }
+
+
+    notices.forEach(
+        notice => {
+
+            const english =
+                notice.title_en ||
+                "";
+
+
+            const malayalam =
+                notice.title_ml ||
+                "";
+
+
+            list.innerHTML += `
+
+                <div
+                    class="border rounded p-3 mb-2"
+                >
+
+                    ${
+                        english
+                            ? `
+                                <strong>
+                                    ${english}
+                                </strong>
+                              `
+                            : ""
+                    }
+
+                    ${
+                        malayalam
+                            ? `
+                                <div>
+                                    ${malayalam}
+                                </div>
+                              `
+                            : ""
+                    }
+
+
+                    <button
+                        class="btn btn-sm btn-danger mt-2"
+                        onclick="deleteNotice(${notice.id})"
+                    >
+                        Delete
+                    </button>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+}
+
+
 
 document
-    .getElementById("noticeForm")
+    .getElementById(
+        "noticeForm"
+    )
     .addEventListener(
         "submit",
         async function(event) {
 
-            // Prevent page refresh
             event.preventDefault();
 
 
-            // Get form values
-            const title_en =
+            const english =
                 document
-                    .getElementById("title_en")
-                    .value
-                    .trim();
+                    .getElementById(
+                        "title_en"
+                    )
+                    .value;
 
 
-            const title_ml =
+            const malayalam =
                 document
-                    .getElementById("title_ml")
-                    .value
-                    .trim();
+                    .getElementById(
+                        "title_ml"
+                    )
+                    .value;
 
 
-            const message =
-                document.getElementById(
-                    "message"
+            if (
+                !hasLanguageContent(
+                    english,
+                    malayalam
+                )
+            ) {
+
+                showError(
+                    "noticeMessage",
+                    "Please enter the notice in English or Malayalam."
                 );
+
+                return;
+
+            }
 
 
             try {
 
-                // Send JSON to FastAPI
                 const response =
                     await fetch(
                         "/api/admin/notices",
@@ -297,54 +720,52 @@ document
                                     "application/json"
                             },
 
-                            body: JSON.stringify({
+                            body:
+                                JSON.stringify({
 
-                                title_en:
-                                    title_en,
+                                    title_en:
+                                        english.trim() ||
+                                        null,
 
-                                title_ml:
-                                    title_ml
+                                    title_ml:
+                                        malayalam.trim() ||
+                                        null
 
-                            })
+                                })
+
                         }
                     );
 
 
-                // Read response
                 const data =
                     await response.json();
 
 
-                // Handle error
                 if (!response.ok) {
 
-                    message.innerHTML = `
-                        <div class="alert alert-danger">
-                            ${
-                                data.detail ||
-                                "Failed to add notice."
-                            }
-                        </div>
-                    `;
-
-                    console.error(
-                        "API error:",
-                        data
+                    throw new Error(
+                        data.detail ||
+                        "Failed to add notice."
                     );
 
-                    return;
                 }
 
 
-                // Success
-                message.innerHTML = `
-                    <div class="alert alert-success">
-                        Notice added successfully.
-                    </div>
-                `;
+                document
+                    .getElementById(
+                        "noticeMessage"
+                    )
+                    .innerHTML = `
+
+                        <div class="alert alert-success">
+
+                            Notice added successfully.
+
+                        </div>
+
+                    `;
 
 
-                // Clear form
                 document
                     .getElementById(
                         "noticeForm"
@@ -352,19 +773,371 @@ document
                     .reset();
 
 
-                // Reload notices
-                await loadNotices();
+                loadNotices();
 
             }
 
+
             catch (error) {
 
-                console.error(error);
+                showError(
+                    "noticeMessage",
+                    error.message
+                );
+
+            }
+
+        }
+    );
+
+
+
+async function deleteNotice(id) {
+
+    if (
+        !confirm(
+            "Delete this notice?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    await fetch(
+        `/api/admin/notices/${id}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+
+    loadNotices();
+
+}
+
+
+
+// =========================================================
+// BOOKS
+// =========================================================
+
+
+async function loadBooks() {
+
+    const response =
+        await fetch(
+            "/api/books"
+        );
+
+
+    const books =
+        await response.json();
+
+
+    const list =
+        document.getElementById(
+            "bookList"
+        );
+
+
+    list.innerHTML = "";
+
+
+    if (
+        books.length === 0
+    ) {
+
+        list.innerHTML =
+            "<p>No books found.</p>";
+
+        return;
+
+    }
+
+
+    books.forEach(
+        book => {
+
+            const image =
+                book.image_url
+                    ? `
+
+                        <img
+                            src="${book.image_url}"
+                            class="img-fluid mb-3"
+                            style="
+                                height:180px;
+                                width:100%;
+                                object-fit:cover;
+                            "
+                        >
+
+                      `
+                    : "";
+
+
+            const english =
+                book.title_en ||
+                "";
+
+
+            const malayalam =
+                book.title_ml ||
+                "";
+
+
+            list.innerHTML += `
+
+                <div
+                    class="col-md-4 mb-4"
+                >
+
+                    <div
+                        class="card h-100"
+                    >
+
+                        <div
+                            class="card-body"
+                        >
+
+                            ${image}
+
+
+                            ${
+                                english
+                                    ? `
+                                        <h5>
+                                            ${english}
+                                        </h5>
+                                      `
+                                    : ""
+                            }
+
+
+                            ${
+                                malayalam
+                                    ? `
+                                        <p>
+                                            ${malayalam}
+                                        </p>
+                                      `
+                                    : ""
+                            }
+
+
+                            <p>
+
+                                <strong>
+                                    Author:
+                                </strong>
+
+                                ${book.author || "N/A"}
+
+                            </p>
+
+
+                            <button
+                                class="btn btn-danger btn-sm"
+                                onclick="deleteBook(${book.id})"
+                            >
+                                Delete
+                            </button>
+
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+}
+
+
+
+// ADD BOOK
+
+
+document
+    .getElementById(
+        "bookForm"
+    )
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const message =
+                document.getElementById(
+                    "bookMessage"
+                );
+
+
+            const english =
+                document
+                    .getElementById(
+                        "book_title_en"
+                    )
+                    .value;
+
+
+            const malayalam =
+                document
+                    .getElementById(
+                        "book_title_ml"
+                    )
+                    .value;
+
+
+            if (
+                !hasLanguageContent(
+                    english,
+                    malayalam
+                )
+            ) {
+
+                showError(
+                    "bookMessage",
+                    "Please enter the book title in English or Malayalam."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                const file =
+                    document
+                        .getElementById(
+                            "book_image"
+                        )
+                        .files[0];
+
+
+                const image_url =
+                    await uploadImage(
+                        file
+                    );
+
+
+                const response =
+                    await fetch(
+                        "/api/admin/books",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    title_en:
+                                        english.trim() ||
+                                        null,
+
+                                    title_ml:
+                                        malayalam.trim() ||
+                                        null,
+
+                                    author:
+                                        document
+                                            .getElementById(
+                                                "book_author"
+                                            )
+                                            .value
+                                            .trim() ||
+                                        null,
+
+                                    description_en:
+                                        document
+                                            .getElementById(
+                                                "book_description_en"
+                                            )
+                                            .value
+                                            .trim() ||
+                                        null,
+
+                                    description_ml:
+                                        document
+                                            .getElementById(
+                                                "book_description_ml"
+                                            )
+                                            .value
+                                            .trim() ||
+                                        null,
+
+                                    image_url:
+                                        image_url,
+
+                                    is_available:
+                                        true
+
+                                })
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.detail ||
+                        "Failed to create book."
+                    );
+
+                }
+
 
                 message.innerHTML = `
-                    <div class="alert alert-danger">
-                        Something went wrong.
+
+                    <div
+                        class="alert alert-success"
+                    >
+                        Book added successfully.
                     </div>
+
+                `;
+
+
+                document
+                    .getElementById(
+                        "bookForm"
+                    )
+                    .reset();
+
+
+                loadBooks();
+
+            }
+
+
+            catch (error) {
+
+                message.innerHTML = `
+
+                    <div
+                        class="alert alert-danger"
+                    >
+                        ${error.message}
+                    </div>
+
                 `;
 
             }
@@ -373,74 +1146,692 @@ document
     );
 
 
-// ========================================
-// DELETE NOTICE
-// ========================================
 
-async function deleteNotice(id) {
+// DELETE BOOK
+
+
+async function deleteBook(id) {
 
     if (
         !confirm(
-            "Are you sure you want to delete this notice?"
+            "Delete this book?"
         )
     ) {
+
         return;
+
     }
 
 
-    try {
-
-        const response =
-            await fetch(
-                `/api/admin/notices/${id}`,
-                {
-                    method: "DELETE"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            alert(
-                data.detail ||
-                "Failed to delete notice."
-            );
-
-            return;
+    await fetch(
+        `/api/admin/books/${id}`,
+        {
+            method: "DELETE"
         }
+    );
 
 
-        // Reload list
-        await loadNotices();
-
-    }
-
-    catch (error) {
-
-        console.error(error);
-
-        alert(
-            "Something went wrong while deleting the notice."
-        );
-
-    }
+    loadBooks();
 
 }
 
 
-// ========================================
+
+// =========================================================
+// BUILDING UPDATES
+// =========================================================
+
+
+async function loadBuildingUpdates() {
+
+    const response =
+        await fetch(
+            "/api/building-updates"
+        );
+
+
+    const updates =
+        await response.json();
+
+
+    const list =
+        document.getElementById(
+            "buildingList"
+        );
+
+
+    list.innerHTML = "";
+
+
+    if (
+        updates.length === 0
+    ) {
+
+        list.innerHTML =
+            "<p>No building updates found.</p>";
+
+        return;
+
+    }
+
+
+    updates.forEach(
+        update => {
+
+            const image =
+                update.image_url
+                    ? `
+
+                        <img
+                            src="${update.image_url}"
+                            class="img-fluid mb-3"
+                            style="
+                                max-height:200px;
+                                width:100%;
+                                object-fit:cover;
+                            "
+                        >
+
+                      `
+                    : "";
+
+
+            const english =
+                update.title_en ||
+                "";
+
+
+            const malayalam =
+                update.title_ml ||
+                "";
+
+
+            list.innerHTML += `
+
+                <div
+                    class="border rounded p-3 mb-3"
+                >
+
+                    ${image}
+
+
+                    ${
+                        english
+                            ? `
+                                <h5>
+                                    ${english}
+                                </h5>
+                              `
+                            : ""
+                    }
+
+
+                    ${
+                        malayalam
+                            ? `
+                                <p>
+                                    ${malayalam}
+                                </p>
+                              `
+                            : ""
+                    }
+
+
+                    ${
+                        update.description_en
+                            ? `
+                                <p>
+                                    ${update.description_en}
+                                </p>
+                              `
+                            : ""
+                    }
+
+
+                    <button
+                        class="btn btn-danger btn-sm"
+                        onclick="deleteBuildingUpdate(${update.id})"
+                    >
+                        Delete
+                    </button>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+}
+
+
+
+// ADD BUILDING UPDATE
+
+
+document
+    .getElementById(
+        "buildingForm"
+    )
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const message =
+                document.getElementById(
+                    "buildingMessage"
+                );
+
+
+            const english =
+                document
+                    .getElementById(
+                        "building_title_en"
+                    )
+                    .value;
+
+
+            const malayalam =
+                document
+                    .getElementById(
+                        "building_title_ml"
+                    )
+                    .value;
+
+
+            if (
+                !hasLanguageContent(
+                    english,
+                    malayalam
+                )
+            ) {
+
+                showError(
+                    "buildingMessage",
+                    "Please enter the building update title in English or Malayalam."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                const file =
+                    document
+                        .getElementById(
+                            "building_image"
+                        )
+                        .files[0];
+
+
+                const image_url =
+                    await uploadImage(
+                        file
+                    );
+
+
+                const response =
+                    await fetch(
+                        "/api/admin/building-updates",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    title_en:
+                                        english.trim() ||
+                                        null,
+
+                                    title_ml:
+                                        malayalam.trim() ||
+                                        null,
+
+                                    description_en:
+                                        document
+                                            .getElementById(
+                                                "building_description_en"
+                                            )
+                                            .value
+                                            .trim() ||
+                                        null,
+
+                                    description_ml:
+                                        document
+                                            .getElementById(
+                                                "building_description_ml"
+                                            )
+                                            .value
+                                            .trim() ||
+                                        null,
+
+                                    image_url:
+                                        image_url
+
+                                })
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.detail ||
+                        "Failed to create building update."
+                    );
+
+                }
+
+
+                message.innerHTML = `
+
+                    <div
+                        class="alert alert-success"
+                    >
+                        Building update added successfully.
+                    </div>
+
+                `;
+
+
+                document
+                    .getElementById(
+                        "buildingForm"
+                    )
+                    .reset();
+
+
+                loadBuildingUpdates();
+
+            }
+
+
+            catch (error) {
+
+                message.innerHTML = `
+
+                    <div
+                        class="alert alert-danger"
+                    >
+                        ${error.message}
+                    </div>
+
+                `;
+
+            }
+
+        }
+    );
+
+
+
+// DELETE BUILDING UPDATE
+
+
+async function deleteBuildingUpdate(id) {
+
+    if (
+        !confirm(
+            "Delete this building update?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    await fetch(
+        `/api/admin/building-updates/${id}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+
+    loadBuildingUpdates();
+
+}
+
+
+
+// =========================================================
+// SITE SETTINGS
+// =========================================================
+
+
+async function loadSettings() {
+
+    const response =
+        await fetch(
+            "/api/settings"
+        );
+
+
+    const settings =
+        await response.json();
+
+
+    const list =
+        document.getElementById(
+            "settingsList"
+        );
+
+
+    list.innerHTML = "";
+
+
+    if (
+        settings.length === 0
+    ) {
+
+        list.innerHTML =
+            "<p>No settings found.</p>";
+
+        return;
+
+    }
+
+
+    settings.forEach(
+        setting => {
+
+            const english =
+                setting.value_en ||
+                "";
+
+
+            const malayalam =
+                setting.value_ml ||
+                "";
+
+
+            list.innerHTML += `
+
+                <div
+                    class="border rounded p-3 mb-3"
+                >
+
+                    <h6>
+
+                        ${setting.key}
+
+                    </h6>
+
+
+                    ${
+                        english
+                            ? `
+                                <div>
+                                    <strong>
+                                        English:
+                                    </strong>
+
+                                    ${english}
+                                </div>
+                              `
+                            : ""
+                    }
+
+
+                    ${
+                        malayalam
+                            ? `
+                                <div>
+                                    <strong>
+                                        Malayalam:
+                                    </strong>
+
+                                    ${malayalam}
+                                </div>
+                              `
+                            : ""
+                    }
+
+
+                    <button
+                        class="btn btn-danger btn-sm mt-2"
+                        onclick="deleteSetting(${setting.id})"
+                    >
+                        Delete
+                    </button>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+}
+
+
+
+// ADD / UPDATE SITE SETTING
+
+
+document
+    .getElementById(
+        "settingsForm"
+    )
+    .addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            const message =
+                document.getElementById(
+                    "settingsMessage"
+                );
+
+
+            const key =
+                document
+                    .getElementById(
+                        "setting_key"
+                    )
+                    .value
+                    .trim();
+
+
+            const english =
+                document
+                    .getElementById(
+                        "setting_value_en"
+                    )
+                    .value;
+
+
+            const malayalam =
+                document
+                    .getElementById(
+                        "setting_value_ml"
+                    )
+                    .value;
+
+
+            if (
+                !hasLanguageContent(
+                    english,
+                    malayalam
+                )
+            ) {
+
+                showError(
+                    "settingsMessage",
+                    "Please enter the setting in English or Malayalam."
+                );
+
+                return;
+
+            }
+
+
+            if (!key) {
+
+                showError(
+                    "settingsMessage",
+                    "Please enter a setting key."
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/admin/settings",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+
+                                    key:
+                                        key,
+
+                                    value_en:
+                                        english.trim() ||
+                                        null,
+
+                                    value_ml:
+                                        malayalam.trim() ||
+                                        null
+
+                                })
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.detail ||
+                        "Failed to save setting."
+                    );
+
+                }
+
+
+                message.innerHTML = `
+
+                    <div
+                        class="alert alert-success"
+                    >
+                        Setting saved successfully.
+                    </div>
+
+                `;
+
+
+                document
+                    .getElementById(
+                        "settingsForm"
+                    )
+                    .reset();
+
+
+                loadSettings();
+
+            }
+
+
+            catch (error) {
+
+                message.innerHTML = `
+
+                    <div
+                        class="alert alert-danger"
+                    >
+                        ${error.message}
+                    </div>
+
+                `;
+
+            }
+
+        }
+    );
+
+
+
+// DELETE SETTING
+
+
+async function deleteSetting(id) {
+
+    if (
+        !confirm(
+            "Delete this setting?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    await fetch(
+        `/api/admin/settings/${id}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+
+    loadSettings();
+
+}
+
+
+
+// =========================================================
 // INITIAL LOAD
-// ========================================
+// =========================================================
+
 
 loadNotices();
 
+loadBooks();
+
+loadBuildingUpdates();
+
+loadSettings();
+
+
 </script>
+
 
 </body>
 
 </html>
-```
