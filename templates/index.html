@@ -259,24 +259,29 @@
       <button class="modal-tab" data-mtab="register" data-i18n="modalTabRegister"></button>
     </div>
     <form class="auth-form" id="loginForm">
-      <label data-i18n="lblMemberId"></label>
-      <input type="text" required autocomplete="username" data-i18n-ph="phMemberId">
+      <label data-i18n="lblUsername"></label>
+      <input type="text" name="username" required autocomplete="username" data-i18n-ph="phUsername">
       <label data-i18n="lblPassword"></label>
-      <input type="password" required autocomplete="current-password" data-i18n-ph="phPassword">
+      <input type="password" name="password" required autocomplete="current-password" data-i18n-ph="phPassword">
       <button type="submit" data-i18n="btnLogin"></button>
       <div class="form-msg" id="loginMsg"></div>
     </form>
     <form class="auth-form" id="registerForm" hidden>
       <label data-i18n="lblFullName"></label>
-      <input type="text" required data-i18n-ph="phFullName">
+      <input type="text" name="full_name" required data-i18n-ph="phFullName">
+      <label data-i18n="lblEmail"></label>
+      <input type="email" name="email" required data-i18n-ph="phEmail">
       <label data-i18n="lblPhone"></label>
-      <input type="tel" required data-i18n-ph="phPhone">
+      <input type="tel" name="phone" required data-i18n-ph="phPhone">
+      <label data-i18n="lblUsername"></label>
+      <input type="text" name="username" required autocomplete="username" data-i18n-ph="phUsername">
       <label data-i18n="lblChoosePass"></label>
-      <input type="password" required data-i18n-ph="phChoosePass">
+      <input type="password" name="password" required autocomplete="new-password" data-i18n-ph="phChoosePass">
+      <label data-i18n="lblConfirmPass"></label>
+      <input type="password" name="confirm_password" required autocomplete="new-password" data-i18n-ph="phConfirmPass">
       <button type="submit" data-i18n="btnRegister"></button>
       <div class="form-msg" id="registerMsg"></div>
     </form>
-    <p class="demo-note" data-i18n="modalDemoNote"></p>
   </div>
 </div>
 
@@ -314,19 +319,22 @@ const dict = {
   modalSub:{ml:"നിങ്ങളുടെ അക്കൗണ്ടിലേക്ക് പ്രവേശിക്കുക അല്ലെങ്കിൽ പുതിയ അംഗമായി ചേരുക.",en:"Sign in to your account or join as a new member."},
   modalTabLogin:{ml:"ലോഗിൻ",en:"Log in"},
   modalTabRegister:{ml:"പുതിയ അംഗം",en:"Register"},
-  lblMemberId:{ml:"അംഗത്വ ഐഡി / ഫോൺ നമ്പർ",en:"Member ID / Phone number"},
-  phMemberId:{ml:"ഉദാ: JVL2024",en:"e.g. JVL2024"},
+  lblUsername:{ml:"യൂസർനെയിം",en:"Username"},
+  phUsername:{ml:"നിങ്ങളുടെ യൂസർനെയിം",en:"Your username"},
   lblPassword:{ml:"പാസ്‌വേഡ്",en:"Password"},
   phPassword:{ml:"നിങ്ങളുടെ പാസ്‌വേഡ്",en:"Your password"},
   btnLogin:{ml:"ലോഗിൻ ചെയ്യുക",en:"Log in"},
   lblFullName:{ml:"മുഴുവൻ പേര്",en:"Full name"},
   phFullName:{ml:"നിങ്ങളുടെ പേര്",en:"Your name"},
+  lblEmail:{ml:"ഇമെയിൽ",en:"Email"},
+  phEmail:{ml:"നിങ്ങളുടെ ഇമെയിൽ",en:"Your email"},
   lblPhone:{ml:"ഫോൺ നമ്പർ",en:"Phone number"},
   phPhone:{ml:"10 അക്ക നമ്പർ",en:"10-digit number"},
   lblChoosePass:{ml:"പാസ്‌വേഡ് തിരഞ്ഞെടുക്കുക",en:"Choose a password"},
   phChoosePass:{ml:"കുറഞ്ഞത് 6 അക്ഷരം",en:"At least 6 characters"},
+  lblConfirmPass:{ml:"പാസ്‌വേഡ് സ്ഥിരീകരിക്കുക",en:"Confirm password"},
+  phConfirmPass:{ml:"പാസ്‌വേഡ് വീണ്ടും നൽകുക",en:"Re-enter password"},
   btnRegister:{ml:"അംഗത്വത്തിന് അപേക്ഷിക്കുക",en:"Apply for membership"},
-  modalDemoNote:{ml:"ഇത് ഒരു ഡിസൈൻ മാതൃകയാണ് — യഥാർത്ഥ അംഗത്വ സംവിധാനം പ്രവർത്തിക്കാൻ ഒരു ബാക്കെൻഡ് ബന്ധിപ്പിക്കേണ്ടതുണ്ട്.",en:"This is a design prototype — connect a backend to make real member accounts work."},
   adminPrompt:{ml:"ഉള്ളടക്കം തിരുത്താൻ അഡ്മിൻ പാസ്‌വേഡ് നൽകുക.",en:"Enter the admin password to edit site content."},
   adminPasswordPh:{ml:"അഡ്മിൻ പാസ്‌വേഡ്",en:"Admin password"},
   adminUnlockBtn:{ml:"തുറക്കുക",en:"Unlock"},
@@ -377,75 +385,103 @@ const dict = {
   en:{ml:"ഇം",en:"EN"}
 };
 
-const defaultContent = {
-  notices:[
-    {id:"n1", text:{ml:"പുതിയ പുസ്തകങ്ങൾ ഈ ആഴ്ച ലഭ്യമാണ് — ലൈബ്രറി സന്ദർശിക്കുക.",en:"New books available this week — visit the library."}, active:true},
-    {id:"n2", text:{ml:"കെട്ടിട നിർമ്മാണ ഫണ്ടിലേക്ക് സംഭാവന നൽകാൻ താല്പര്യമുള്ളവർ ഭാരവാഹികളെ ബന്ധപ്പെടുക.",en:"Those interested in donating to the building fund may contact the committee."}, active:true}
-  ],
-  hero:{title:{ml:"അറിവിന്റെ വേരുകൾ, വായനയുടെ ശാഖകൾ",en:"Roots of knowledge, branches of reading"},
-        body:{ml:"1996-ൽ കേരളാദിത്യപുരത്ത് സ്ഥാപിതമായ ജനത വായനശാല & ലൈബ്രറി, നാട്ടിലെ വായനക്കാർക്കും വിദ്യാർത്ഥികൾക്കും പുസ്തകങ്ങൾ, ആനുകാലികങ്ങൾ, പഠനമുറി എന്നിവ സൗജന്യമായി ലഭ്യമാക്കുന്നു. ഓരോ ആഴ്ചയും പുതിയ പുസ്തകങ്ങൾ വിതരണം ചെയ്യുന്നു.",en:"Janatha Reading Room & Library in Keraladithyapuram gives readers and students free access to books, periodicals, and a quiet study space. New books are distributed to members every week."}},
-  stats:{reg:{ml:"3090",en:"3090"}, founded:{ml:"—",en:"—"}, members:{ml:"—",en:"—"}},
-  books:[
-    {day:{ml:"തിങ്കൾ",en:"Monday"}, title:{ml:"ഖസാക്കിന്റെ ഇതിഹാസം",en:"Khasakkinte Itihasam"}, author:{ml:"ഒ.വി. വിജയൻ",en:"O.V. Vijayan"}, tag:{ml:"നോവൽ",en:"Novel"}},
-    {day:{ml:"ചൊവ്വ",en:"Tuesday"}, title:{ml:"ചെമ്മീൻ",en:"Chemmeen"}, author:{ml:"തകഴി ശിവശങ്കരപ്പിള്ള",en:"Thakazhi Sivasankara Pillai"}, tag:{ml:"നോവൽ",en:"Novel"}},
-    {day:{ml:"ബുധൻ",en:"Wednesday"}, title:{ml:"ആരാച്ചാർ",en:"Aarachar"}, author:{ml:"കെ.ആർ. മീര",en:"K.R. Meera"}, tag:{ml:"നോവൽ",en:"Novel"}},
-    {day:{ml:"വ്യാഴം",en:"Thursday"}, title:{ml:"ബാല്യകാലസഖി",en:"Balyakalasakhi"}, author:{ml:"വൈക്കം മുഹമ്മദ് ബഷീർ",en:"Vaikom Muhammad Basheer"}, tag:{ml:"നോവൽ",en:"Novel"}},
-    {day:{ml:"വെള്ളി",en:"Friday"}, title:{ml:"ഒരു ദേശത്തിന്റെ കഥ",en:"Oru Desathinte Katha"}, author:{ml:"എസ്.കെ. പൊറ്റെക്കാട്ട്",en:"S.K. Pottekkatt"}, tag:{ml:"നോവൽ",en:"Novel"}},
-    {day:{ml:"ശനി",en:"Saturday"}, title:{ml:"മാർട്ടിൻ ഈഡൻ",en:"Martin Eden"}, author:{ml:"ജാക്ക് ലണ്ടൻ",en:"Jack London"}, tag:{ml:"വിവർത്തനം",en:"Translation"}},
-    {day:{ml:"ഞായർ",en:"Sunday"}, title:{ml:"നാലുകെട്ട്",en:"Naalukettu"}, author:{ml:"എം.ടി. വാസുദേവൻ നായർ",en:"M.T. Vasudevan Nair"}, tag:{ml:"നോവൽ",en:"Novel"}}
-  ],
-  building:{ progressPercent: 55, updates:[
-    {date:"", image:"", title:{ml:"അടിത്തറ പണി പൂർത്തിയായി",en:"Foundation work completed"}, body:{ml:"പുതിയ കെട്ടിടത്തിന്റെ അടിത്തറ പണികൾ പൂർത്തിയാക്കി.",en:"Foundation work for the new building has been finished."}},
-    {date:"", image:"", title:{ml:"ചുവരുകൾ ഉയരുന്നു",en:"Walls under construction"}, body:{ml:"ഒന്നാം നിലയുടെ ചുവരുകൾ നിർമ്മാണത്തിലാണ്.",en:"First-floor walls are currently being built."}},
-    {date:"", image:"", title:{ml:"ഫണ്ട് ശേഖരണം തുടരുന്നു",en:"Fundraising ongoing"}, body:{ml:"നാട്ടുകാരുടെയും അംഗങ്ങളുടെയും സഹായത്തോടെ ഫണ്ട് ശേഖരണം തുടരുന്നു.",en:"Fundraising continues with support from local residents and members."}},
-    {date:"", image:"", title:{ml:"ലക്ഷ്യ പൂർത്തീകരണം",en:"Target completion"}, body:{ml:"തീയതി പിന്നീട് അറിയിക്കും.",en:"Target date to be announced."}}
-  ]},
-  sports:[
-    {title:{ml:"ബാഡ്മിന്റൺ പരിശീലനം",en:"Badminton coaching"}, body:{ml:"ആഴ്ചയിൽ മൂന്ന് ദിവസം യുവാക്കൾക്കായി പരിശീലനം.",en:"Training three days a week for youth members."}},
-    {title:{ml:"ഫുട്ബോൾ ഗ്രൗണ്ട്",en:"Football ground"}, body:{ml:"വൈകുന്നേരങ്ങളിൽ പരിശീലനത്തിനും കളികൾക്കുമായി ലഭ്യമാണ്.",en:"Available for practice and matches in the evenings."}},
-    {title:{ml:"അത്‌ലറ്റിക്സ്",en:"Athletics"}, body:{ml:"ട്രാക്ക് & ഫീൽഡ് ഇനങ്ങളിൽ പരിശീലനം നൽകുന്നു.",en:"Training offered in track and field events."}},
-    {title:{ml:"വാർഷിക കായികമേള",en:"Annual sports meet"}, body:{ml:"എല്ലാ വർഷവും നാട്ടിലെ എല്ലാവർക്കുമായി കായികമേള സംഘടിപ്പിക്കുന്നു.",en:"An annual sports meet is organised for the whole community."}}
-  ],
-  about:{
-    p1:{ml:"ജനത വായനശാല & ലൈബ്രറി കേരളാദിത്യപുരത്തെ ഒരു പൊതു വായനശാലയാണ്. നാട്ടിലെ എല്ലാ പ്രായക്കാർക്കും വായനയും അറിവും സൗജന്യമായി ലഭ്യമാക്കുക എന്നതാണ് ലക്ഷ്യം. പുസ്തകങ്ങൾ, പത്രങ്ങൾ, മാസികകൾ, പഠനമുറി എന്നിവ ഇവിടെ ലഭ്യമാണ്.",en:"Janatha Reading Room & Library is a public library serving Keraladithyapuram. Our goal is to make reading and knowledge freely available to people of every age, with books, newspapers, magazines, and a quiet study room."},
-    p2:{ml:"ലൈബ്രറി കേരള സംസ്ഥാന ലൈബ്രറി കൗൺസിലിൽ രജിസ്റ്റർ ചെയ്തിട്ടുണ്ട്. അംഗത്വം, പുസ്തക സംഭാവന, സന്നദ്ധപ്രവർത്തനം എന്നിവയിൽ താല്പര്യമുള്ളവർക്ക് ലൈബ്രറി ഭാരവാഹികളെ ബന്ധപ്പെടാവുന്നതാണ്.",en:"The library is registered with the Kerala State Library Council. Those interested in membership, donating books, or volunteering are welcome to contact the library committee."},
-    meta:[
-      {lbl:{ml:"രജിസ്ട്രേഷൻ നമ്പർ",en:"Registration No."}, val:{ml:"3090",en:"3090"}},
-      {lbl:{ml:"സ്ഥലം",en:"Location"}, val:{ml:"കേരളാദിത്യപുരം",en:"Keraladithyapuram"}},
-      {lbl:{ml:"ബന്ധപ്പെടേണ്ട",en:"Contact"}, val:{ml:"ലൈബ്രറി ഭാരവാഹികൾ",en:"Library committee"}}
-    ]
-  },
-  footer:{ address:{ml:"കേരളാദിത്യപുരം · കേരളം",en:"Keraladithyapuram · Kerala"} }
+// Content structure to hold data loaded from FastAPI endpoints
+let content = {
+  notices: [],
+  hero: {title:{ml:"",en:""}, body:{ml:"",en:""}},
+  stats: {reg:{ml:"",en:""}, founded:{ml:"",en:""}, members:{ml:"",en:""}},
+  books: [],
+  building: {progressPercent: 0, updates: []},
+  sports: [],
+  about: {p1:{ml:"",en:""}, p2:{ml:"",en:""}, meta:[]},
+  footer: {address:{ml:"",en:""}}
 };
 
-let content = JSON.parse(JSON.stringify(defaultContent));
 let currentLang = "ml";
 let isAdminAuthed = false;
 let adminPassword = ""; // held only in memory after a successful login, sent with each save
 
+// Load data from FastAPI endpoints
 async function loadContent(){
   try{
-    const res = await fetch("/api/content");
-    if(res.ok) content = await res.json();
-    if(!Array.isArray(content.notices)) content.notices = [];
+    // Load notices
+    const noticesRes = await fetch("/api/notices");
+    if(noticesRes.ok){
+      const notices = await noticesRes.json();
+      content.notices = notices.map(n => ({
+        id: n.id,
+        text: {ml: n.title_ml || "", en: n.title_en || ""},
+        active: n.is_active !== false
+      }));
+    }
+
+    // Load books
+    const booksRes = await fetch("/api/books");
+    if(booksRes.ok){
+      const books = await booksRes.json();
+      content.books = books.map(b => ({
+        day: {ml: "", en: ""}, // Books don't have day field in DB
+        title: {ml: b.title_ml || "", en: b.title_en || ""},
+        author: {ml: b.author || "", en: b.author || ""},
+        tag: {ml: "", en: ""} // Books don't have tag field in DB
+      }));
+    }
+
+    // Load building updates
+    const buildingRes = await fetch("/api/building-updates");
+    if(buildingRes.ok){
+      const updates = await buildingRes.json();
+      content.building.updates = updates.map(u => ({
+        date: u.created_at ? u.created_at.split('T')[0] : "",
+        image: u.image_url || "",
+        title: {ml: u.title_ml || "", en: u.title_en || ""},
+        body: {ml: u.description_ml || "", en: u.description_en || ""}
+      }));
+      // Set a default progress percentage (can be made dynamic via settings)
+      content.building.progressPercent = 55;
+    }
+
+    // Load settings
+    const settingsRes = await fetch("/api/settings");
+    if(settingsRes.ok){
+      const settings = await settingsRes.json();
+      const settingsMap = {};
+      settings.forEach(s => {
+        settingsMap[s.key] = {ml: s.value_ml || "", en: s.value_en || ""};
+      });
+
+      // Map settings to content structure
+      content.hero.title = settingsMap.hero_title || {ml:"അറിവിന്റെ വേരുകൾ, വായനയുടെ ശാഖകൾ", en:"Roots of knowledge, branches of reading"};
+      content.hero.body = settingsMap.hero_body || {ml:"1996-ൽ കേരളാദിത്യപുരത്ത് സ്ഥാപിതമായ ജനത വായനശാല & ലൈബ്രറി, നാട്ടിലെ വായനക്കാർക്കും വിദ്യാർത്ഥികൾക്കും പുസ്തകങ്ങൾ, ആനുകാലികങ്ങൾ, പഠനമുറി എന്നിവ സൗജന്യമായി ലഭ്യമാക്കുന്നു. ഓരോ ആഴ്ചയും പുതിയ പുസ്തകങ്ങൾ വിതരണം ചെയ്യുന്നു.", en:"Janatha Reading Room & Library in Keraladithyapuram gives readers and students free access to books, periodicals, and a quiet study space. New books are distributed to members every week."};
+      content.stats.reg = settingsMap.stat_registration || {ml:"3090", en:"3090"};
+      content.stats.founded = settingsMap.stat_founded || {ml:"1996", en:"1996"};
+      content.stats.members = settingsMap.stat_members || {ml:"500+", en:"500+"};
+      content.about.p1 = settingsMap.about_p1 || {ml:"ജനത വായനശാല & ലൈബ്രറി കേരളാദിത്യപുരത്തെ ഒരു പൊതു വായനശാലയാണ്. നാട്ടിലെ എല്ലാ പ്രായക്കാർക്കും വായനയും അറിവും സൗജന്യമായി ലഭ്യമാക്കുക എന്നതാണ് ലക്ഷ്യം. പുസ്തകങ്ങൾ, പത്രങ്ങൾ, മാസികകൾ, പഠനമുറി എന്നിവ ഇവിടെ ലഭ്യമാണ്.", en:"Janatha Reading Room & Library is a public library serving Keraladithyapuram. Our goal is to make reading and knowledge freely available to people of every age, with books, newspapers, magazines, and a quiet study room."};
+      content.about.p2 = settingsMap.about_p2 || {ml:"ലൈബ്രറി കേരള സംസ്ഥാന ലൈബ്രറി കൗൺസിലിൽ രജിസ്റ്റർ ചെയ്തിട്ടുണ്ട്. അംഗത്വം, പുസ്തക സംഭാവന, സന്നദ്ധപ്രവർത്തനം എന്നിവയിൽ താല്പര്യമുള്ളവർക്ക് ലൈബ്രറി ഭാരവാഹികളെ ബന്ധപ്പെടാവുന്നതാണ്.", en:"The library is registered with the Kerala State Library Council. Those interested in membership, donating books, or volunteering are welcome to contact the library committee."};
+      content.footer.address = settingsMap.footer_address || {ml:"കേരളാദിത്യപുരം · കേരളം", en:"Keraladithyapuram · Kerala"};
+
+      // About meta - use hardcoded for now as it's not in DB
+      content.about.meta = [
+        {lbl:{ml:"രജിസ്ട്രേഷൻ നമ്പർ",en:"Registration No."}, val: content.stats.reg},
+        {lbl:{ml:"സ്ഥലം",en:"Location"}, val:{ml:"കേരളാദിത്യപുരം",en:"Keraladithyapuram"}},
+        {lbl:{ml:"ബന്ധപ്പെടേണ്ട",en:"Contact"}, val:{ml:"ലൈബ്രറി ഭാരവാഹികൾ",en:"Library committee"}}
+      ];
+
+      // Sports - use hardcoded for now as it's not in DB
+      content.sports = [
+        {title:{ml:"ബാഡ്മിന്റൺ പരിശീലനം",en:"Badminton coaching"}, body:{ml:"ആഴ്ചയിൽ മൂന്ന് ദിവസം യുവാക്കൾക്കായി പരിശീലനം.",en:"Training three days a week for youth members."}},
+        {title:{ml:"ഫുട്ബോൾ ഗ്രൗണ്ട്",en:"Football ground"}, body:{ml:"വൈകുന്നേരങ്ങളിൽ പരിശീലനത്തിനും കളികൾക്കുമായി ലഭ്യമാണ്.",en:"Available for practice and matches in the evenings."}},
+        {title:{ml:"അത്‌ലറ്റിക്സ്",en:"Athletics"}, body:{ml:"ട്രാക്ക് & ഫീൽഡ് ഇനങ്ങളിൽ പരിശീലനം നൽകുന്നു.",en:"Training offered in track and field events."}},
+        {title:{ml:"വാർഷിക കായികമേള",en:"Annual sports meet"}, body:{ml:"എല്ലാ വർഷവും നാട്ടിലെ എല്ലാവർക്കുമായി കായികമേള സംഘടിപ്പിക്കുന്നു.",en:"An annual sports meet is organised for the whole community."}}
+      ];
+    }
+
   }catch(e){
-    console.warn("Could not reach the server, showing default sample content.", e);
+    console.warn("Could not load content from server", e);
   }
 }
 
-async function persistContent(){
-  try{
-    const res = await fetch("/api/content", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-admin-password": adminPassword },
-      body: JSON.stringify(content)
-    });
-    return res.ok;
-  }catch(e){
-    return false;
-  }
-}
-
+// Note: Admin authentication functionality preserved but not migrated yet
 async function verifyAdminPassword(pw){
   try{
     const res = await fetch("/api/admin/login", {
@@ -457,6 +493,13 @@ async function verifyAdminPassword(pw){
   }catch(e){
     return false;
   }
+}
+
+// Admin content persistence - NOT IMPLEMENTED YET
+// This is a placeholder for future admin functionality migration
+async function persistContent(){
+  console.warn("Admin content saving not yet implemented - will be migrated later");
+  return false;
 }
 
 function applyLang(lang){
@@ -835,20 +878,67 @@ document.querySelectorAll(".modal-tab").forEach(btn=>{
   });
 });
 
-document.getElementById("loginForm").addEventListener("submit", (e)=>{
+document.getElementById("loginForm").addEventListener("submit", async (e)=>{
   e.preventDefault();
-  document.getElementById("loginMsg").textContent = currentLang==="ml" ? "സാമ്പിൾ: ലോഗിൻ വിജയകരം (ഡെമോ)" : "Sample: Login successful (demo)";
+  const loginMsg = document.getElementById("loginMsg");
+  loginMsg.textContent = "";
+
+  const formData = new FormData(e.target);
+
+  try {
+    const response = await fetch("/api/member/login", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if(response.ok && data.message){
+      loginModal.classList.add("hidden");
+      window.location.href = "/member";
+    }else if(data.error){
+      loginMsg.textContent = data.error;
+    }else{
+      loginMsg.textContent = currentLang==="ml" ? "ലോഗിൻ പരാജയപ്പെട്ടു" : "Login failed";
+    }
+  }catch(err){
+    loginMsg.textContent = currentLang==="ml" ? "ഒരു പിശക് സംഭവിച്ചു" : "An error occurred";
+  }
 });
-document.getElementById("registerForm").addEventListener("submit", (e)=>{
+
+document.getElementById("registerForm").addEventListener("submit", async (e)=>{
   e.preventDefault();
-  document.getElementById("registerMsg").textContent = currentLang==="ml" ? "സാമ്പിൾ: അപേക്ഷ സ്വീകരിച്ചു (ഡെമോ)" : "Sample: Application received (demo)";
+  const registerMsg = document.getElementById("registerMsg");
+  registerMsg.textContent = "";
+
+  const formData = new FormData(e.target);
+
+  try {
+    const response = await fetch("/api/member/register", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if(response.ok && data.message){
+      registerMsg.textContent = currentLang==="ml" ? "അംഗത്വം വിജയകരമായി സൃഷ്ടിച്ചു! ദയവായി ലോഗിൻ ചെയ്യുക." : "Membership created successfully! Please log in.";
+      e.target.reset();
+    }else if(data.error){
+      registerMsg.textContent = data.error;
+    }else{
+      registerMsg.textContent = currentLang==="ml" ? "രജിസ്ട്രേഷൻ പരാജയപ്പെട്ടു" : "Registration failed";
+    }
+  }catch(err){
+    registerMsg.textContent = currentLang==="ml" ? "ഒരു പിശക് സംഭവിച്ചു" : "An error occurred";
+  }
 });
 
 document.addEventListener("DOMContentLoaded", async ()=>{
-  // Render the built-in content immediately so the page is never blank on startup.
+  // Apply language first
   applyLang("ml");
 
-  // Then load the latest content from the backend, if available, and render it again.
+  // Load content from FastAPI endpoints and render
   await loadContent();
   renderPublic();
 });

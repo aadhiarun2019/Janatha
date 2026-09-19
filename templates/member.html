@@ -1,67 +1,184 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ml">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Member - Janatha Library</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            margin: 0;
-            padding: 40px 20px;
-        }
-
-        .card {
-            max-width: 600px;
-            margin: 40px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 5px 25px rgba(0,0,0,.08);
-        }
-
-        button {
-            padding: 10px 18px;
-            border: 0;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .logout {
-            background: #222;
-            color: white;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Member Dashboard - Janatha Reading Room &amp; Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Malayalam:wght@500;600;700&family=Noto+Sans+Malayalam:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --maroon:#6f1626; --maroon-deep:#4c0e1b;
+    --gold:#c9a12b; --gold-light:#e8cf8a;
+    --navy:#0c2038; --navy-deep:#081627;
+    --paper:#f4ecd8; --paper-dark:#e8dcc0;
+    --ink:#241d15; --ink-soft:#5a5044; --green-leaf:#7c8a4a;
+    --shadow: 0 12px 28px rgba(12,32,56,0.28);
+  }
+  *{box-sizing:border-box;}
+  body{font-family:'Inter','Noto Sans Malayalam',sans-serif;}
+  .display{font-family:'Fraunces','Noto Serif Malayalam',serif;}
+  body{margin:0;background:radial-gradient(circle at 20% -10%, #16375c 0%, transparent 45%),radial-gradient(circle at 90% 0%, #0d2947 0%, transparent 40%),linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%);color:var(--ink);min-height:100vh;}
+  .page{max-width:1080px;margin:0 auto;padding:0 20px 60px;}
+  .site-header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:26px 4px 22px;flex-wrap:wrap;}
+  .brand{display:flex;align-items:center;gap:16px;}
+  .logo{width:64px;height:64px;border-radius:50%;border:3px solid var(--gold);object-fit:cover;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.35);}
+  .brand-text h1{margin:0;color:var(--gold-light);font-size:1.5rem;line-height:1.25;letter-spacing:0.2px;}
+  .brand-text .sub{margin:2px 0 0;color:#b9c6d6;font-size:0.85rem;}
+  .header-controls{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .member-badge{background:rgba(201,161,43,0.15);border:1px solid var(--gold);color:var(--gold-light);padding:9px 18px;border-radius:8px;font-size:0.85rem;font-weight:600;}
+  .logout-btn{background:var(--maroon);color:#fceecb;border:1px solid var(--gold);padding:9px 20px;border-radius:8px;font-weight:600;font-size:0.85rem;cursor:pointer;transition:transform 0.15s ease, background 0.2s ease;}
+  .logout-btn:hover{background:var(--maroon-deep);transform:translateY(-1px);}
+  .nav-links{display:flex;gap:10px;}
+  .nav-link{background:rgba(255,255,255,0.08);color:#cdd9e6;border:1px solid rgba(232,207,138,0.35);padding:9px 18px;border-radius:8px;font-size:0.85rem;font-weight:600;text-decoration:none;transition:background 0.2s ease;}
+  .nav-link:hover{background:rgba(255,255,255,0.15);}
+  main{background:var(--paper);border-radius:12px;box-shadow:var(--shadow);min-height:420px;padding:36px 32px;}
+  .welcome-section{margin-bottom:32px;}
+  .welcome-section h2{font-size:1.9rem;margin:0 0 10px;color:var(--maroon-deep);}
+  .welcome-section p{color:var(--ink-soft);line-height:1.7;font-size:0.98rem;}
+  .section-title{display:flex;align-items:center;gap:10px;margin:34px 0 20px;color:var(--green-leaf);}
+  .section-title::before,.section-title::after{content:"";flex:1;height:1px;background:var(--paper-dark);}
+  .section-title span{font-size:0.9rem;font-weight:600;color:var(--maroon);}
+  .info-card{background:#fffdf6;border:1px solid var(--paper-dark);border-radius:8px;padding:20px;margin-bottom:20px;border-left:5px solid var(--maroon);}
+  .info-row{display:flex;gap:20px;margin-bottom:12px;flex-wrap:wrap;}
+  .info-item{flex:1;min-width:200px;}
+  .info-item label{font-size:0.72rem;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:4px;}
+  .info-item .value{font-size:0.98rem;color:var(--ink);font-weight:500;}
+  .status-badge{display:inline-block;background:var(--green-leaf);color:#fff;padding:4px 12px;border-radius:999px;font-size:0.78rem;font-weight:600;}
+  .empty-state{background:rgba(124,138,74,0.12);border-left:4px solid var(--green-leaf);border-radius:6px;padding:20px;text-align:center;color:var(--ink-soft);font-size:0.9rem;}
+  .empty-state-icon{font-size:2.5rem;margin-bottom:10px;opacity:0.5;}
+  footer{margin-top:26px;padding:22px 6px;text-align:center;color:#b9c6d6;font-size:0.8rem;}
+  footer .foot-name{color:var(--gold-light);font-weight:600;display:block;margin-bottom:3px;}
+  .loading{text-align:center;padding:60px 20px;color:var(--ink-soft);font-size:1.1rem;}
+  @media (max-width:560px){
+    .site-header{padding-top:18px;}
+    .brand-text h1{font-size:1.15rem;}
+    main{padding:24px 18px;}
+    .info-row{flex-direction:column;gap:12px;}
+    .nav-links{flex-direction:column;width:100%;}
+    .nav-link{text-align:center;}
+  }
+</style>
 </head>
 <body>
-    <div class="card">
-        <h1>Member Area</h1>
-        <p id="welcome">Loading...</p>
-        <p>You are logged in as a library member.</p>
-        <button class="logout" onclick="logout()">Logout</button>
+<div class="page">
+
+  <header class="site-header">
+    <div class="brand">
+      <img class="logo" src="data:image/jpeg;base64,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" alt="logo">
+      <div class="brand-text">
+        <h1 class="display">Janatha Reading Room &amp; Library</h1>
+        <p class="sub">Keraladithyapuram</p>
+      </div>
+    </div>
+    <div class="header-controls">
+      <span class="member-badge" id="memberName">Member</span>
+      <div class="nav-links">
+        <a href="/" class="nav-link">🏠 Home</a>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="dashboard" style="display:none;">
+    <div class="welcome-section">
+      <h2 class="display" id="welcomeHeading">Welcome!</h2>
+      <p>You are logged in to your library member account.</p>
     </div>
 
-    <script>
-        async function loadMember() {
-            const response = await fetch("/api/auth/me");
-            const data = await response.json();
+    <div class="section-title">
+      <span>Account Information</span>
+    </div>
 
-            if (!data.authenticated || data.role !== "member") {
-                window.location.href = "/";
-                return;
-            }
+    <div class="info-card">
+      <div class="info-row">
+        <div class="info-item">
+          <label>Full Name</label>
+          <div class="value" id="fullName">-</div>
+        </div>
+        <div class="info-item">
+          <label>Username</label>
+          <div class="value" id="username">-</div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-item">
+          <label>Email</label>
+          <div class="value" id="email">-</div>
+        </div>
+        <div class="info-item">
+          <label>Account Status</label>
+          <div class="value"><span class="status-badge">Active Member</span></div>
+        </div>
+      </div>
+    </div>
 
-            document.getElementById("welcome").textContent =
-                `Welcome, ${data.full_name}`;
-        }
+    <div class="section-title">
+      <span>Borrowed Books</span>
+    </div>
 
-        async function logout() {
-            await fetch("/logout", { method: "POST" });
-            window.location.href = "/";
-        }
+    <div class="empty-state">
+      <div class="empty-state-icon">📚</div>
+      <p>No books currently borrowed.</p>
+    </div>
 
-        loadMember();
-    </script>
+    <div class="section-title">
+      <span>Borrowing History</span>
+    </div>
+
+    <div class="empty-state">
+      <div class="empty-state-icon">📖</div>
+      <p>No borrowing history yet.</p>
+    </div>
+  </main>
+
+  <div class="loading" id="loading">Loading your dashboard...</div>
+
+  <footer>
+    <span class="foot-name">Janatha Reading Room &amp; Library</span>
+    Registration No. – 3090
+  </footer>
+
+</div>
+
+<script>
+async function loadMember() {
+  try {
+    const response = await fetch("/api/auth/me");
+    const data = await response.json();
+
+    if (!data.authenticated || data.role !== "member") {
+      window.location.href = "/";
+      return;
+    }
+
+    // Populate member information
+    document.getElementById("welcomeHeading").textContent = `Welcome, ${data.full_name}!`;
+    document.getElementById("memberName").textContent = data.full_name;
+    document.getElementById("fullName").textContent = data.full_name;
+    document.getElementById("username").textContent = data.username;
+    document.getElementById("email").textContent = data.email;
+
+    // Show dashboard
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("dashboard").style.display = "block";
+  } catch (error) {
+    console.error("Error loading member data:", error);
+    window.location.href = "/";
+  }
+}
+
+async function logout() {
+  try {
+    await fetch("/logout", { method: "POST" });
+    window.location.href = "/";
+  } catch (error) {
+    console.error("Error logging out:", error);
+    window.location.href = "/";
+  }
+}
+
+loadMember();
+</script>
 </body>
 </html>
