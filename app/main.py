@@ -7,6 +7,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.routes.public import router as public_router
 from app.routes.auth import router as auth_router
 from app.routes.uploads import router as upload_router
+from app.routes.rentals import router as rentals_router
 
 
 app = FastAPI(title="Janatha Library")
@@ -37,6 +38,7 @@ templates = Jinja2Templates(
 app.include_router(public_router)
 app.include_router(auth_router)
 app.include_router(upload_router)
+app.include_router(rentals_router)
 
 
 @app.get("/")

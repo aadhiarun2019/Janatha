@@ -1,7 +1,7 @@
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Integer, String, Text
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
@@ -20,6 +20,8 @@ class User(Base):
     role: Mapped[str] = mapped_column(String(20), default="member", nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    rentals = relationship("Rental", back_populates="user")
 
 
 class Admin(Base):
@@ -53,6 +55,8 @@ class Book(Base):
     description_en: Mapped[str | None] = mapped_column(Text, nullable=True)
     description_ml: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_available: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    rentals = relationship("Rental", back_populates="book")
 
 
 class BuildingUpdate(Base):
@@ -103,3 +107,18 @@ class Image(Base):
     filename: Mapped[str] = mapped_column(String(255), nullable=False)
     url: Mapped[str] = mapped_column(String(500), nullable=False)
     uploaded_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+
+class Rental(Base):
+    __tablename__ = "rentals"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    book_id: Mapped[int] = mapped_column(Integer, ForeignKey("books.id"), nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
+    borrowed_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    due_date: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    returned_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    status: Mapped[str] = mapped_column(String(20), default="active", nullable=False)
+
+    book = relationship("Book", back_populates="rentals")
+    user = relationship("User", back_populates="rentals")

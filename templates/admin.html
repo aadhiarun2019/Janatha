@@ -365,6 +365,142 @@
 
 
     <!-- =====================================================
+         RENTALS / BOOK ISSUES
+    ====================================================== -->
+
+    <div class="card mb-5">
+
+        <div class="card-header">
+
+            <h4>
+                Book Rentals
+            </h4>
+
+        </div>
+
+
+        <div class="card-body">
+
+
+            <!-- ISSUE A BOOK -->
+
+            <h5>
+                Issue a Book
+            </h5>
+
+            <form id="rentalForm">
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Select Member
+                    </label>
+
+                    <select
+                        id="rental_user_id"
+                        class="form-select"
+                        required
+                    >
+                        <option value="">
+                            Loading members...
+                        </option>
+                    </select>
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Select Book
+                    </label>
+
+                    <select
+                        id="rental_book_id"
+                        class="form-select"
+                        required
+                    >
+                        <option value="">
+                            Loading available books...
+                        </option>
+                    </select>
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Due Date
+                    </label>
+
+                    <input
+                        id="rental_due_date"
+                        type="date"
+                        class="form-control"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    class="btn btn-primary"
+                    type="submit"
+                >
+                    Issue Book
+                </button>
+
+            </form>
+
+
+            <div
+                id="rentalMessage"
+                class="mt-3"
+            ></div>
+
+
+            <hr class="my-4">
+
+
+            <!-- ACTIVE RENTALS -->
+
+            <h5>
+                Active Rentals
+            </h5>
+
+
+            <div id="activeRentalsList" class="mt-3">
+
+                Loading...
+
+            </div>
+
+
+            <hr class="my-4">
+
+
+            <!-- RENTAL HISTORY -->
+
+            <h5>
+                Rental History
+            </h5>
+
+
+            <div id="rentalHistoryList" class="mt-3">
+
+                Loading...
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
          SITE SETTINGS
     ====================================================== -->
 
@@ -1816,6 +1952,558 @@ async function deleteSetting(id) {
 
 
 // =========================================================
+// RENTALS
+// =========================================================
+
+
+// LOAD MEMBERS FOR DROPDOWN
+
+async function loadMembers() {
+
+    try {
+
+        const response = await fetch(
+            "/api/admin/users"
+        );
+
+        const members = await response.json();
+
+        const select = document.getElementById(
+            "rental_user_id"
+        );
+
+        select.innerHTML = `
+            <option value="">
+                -- Select Member --
+            </option>
+        `;
+
+        members.forEach(
+            member => {
+
+                const option = document.createElement(
+                    "option"
+                );
+
+                option.value = member.id;
+
+                option.textContent = `
+                    ${member.full_name} (${member.username})
+                `;
+
+                select.appendChild(option);
+
+            }
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Error loading members:",
+            error
+        );
+
+    }
+
+}
+
+
+// LOAD AVAILABLE BOOKS FOR DROPDOWN
+
+async function loadAvailableBooks() {
+
+    try {
+
+        const response = await fetch(
+            "/api/books"
+        );
+
+        const books = await response.json();
+
+        const availableBooks = books.filter(
+            book => book.is_available
+        );
+
+        const select = document.getElementById(
+            "rental_book_id"
+        );
+
+        select.innerHTML = `
+            <option value="">
+                -- Select Book --
+            </option>
+        `;
+
+        availableBooks.forEach(
+            book => {
+
+                const option = document.createElement(
+                    "option"
+                );
+
+                option.value = book.id;
+
+                const title = book.title_en ||
+                    book.title_ml ||
+                    "Untitled";
+
+                const author = book.author
+                    ? ` by ${book.author}`
+                    : "";
+
+                option.textContent = `
+                    ${title}${author}
+                `;
+
+                select.appendChild(option);
+
+            }
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Error loading books:",
+            error
+        );
+
+    }
+
+}
+
+
+// LOAD ACTIVE RENTALS
+
+async function loadActiveRentals() {
+
+    try {
+
+        const response = await fetch(
+            "/api/admin/rentals?status=active"
+        );
+
+        const rentals = await response.json();
+
+        const container = document.getElementById(
+            "activeRentalsList"
+        );
+
+        if (rentals.length === 0) {
+
+            container.innerHTML = `
+                <div
+                    class="alert alert-info"
+                >
+                    No active rentals.
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        container.innerHTML = "";
+
+
+        rentals.forEach(
+            rental => {
+
+                const bookTitle = rental.book_title_en ||
+                    rental.book_title_ml ||
+                    "Untitled";
+
+                const author = rental.book_author
+                    ? ` by ${rental.book_author}`
+                    : "";
+
+                const borrowedDate = new Date(
+                    rental.borrowed_date
+                ).toLocaleDateString();
+
+                const dueDate = new Date(
+                    rental.due_date
+                ).toLocaleDateString();
+
+                const card = document.createElement(
+                    "div"
+                );
+
+                card.className = "card mb-3";
+
+                card.innerHTML = `
+
+                    <div class="card-body">
+
+                        <h6 class="card-title">
+                            ${bookTitle}${author}
+                        </h6>
+
+                        <p class="card-text mb-2">
+                            <strong>Member:</strong>
+                            ${rental.user_name}
+                            (${rental.user_username})
+                        </p>
+
+                        <p class="card-text mb-2">
+                            <strong>Borrowed:</strong>
+                            ${borrowedDate}
+                        </p>
+
+                        <p class="card-text mb-3">
+                            <strong>Due:</strong>
+                            ${dueDate}
+                        </p>
+
+                        <button
+                            class="btn btn-success btn-sm"
+                            onclick="returnBook(${rental.id})"
+                        >
+                            Mark as Returned
+                        </button>
+
+                    </div>
+
+                `;
+
+                container.appendChild(card);
+
+            }
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Error loading active rentals:",
+            error
+        );
+
+    }
+
+}
+
+
+// LOAD RENTAL HISTORY
+
+async function loadRentalHistory() {
+
+    try {
+
+        const response = await fetch(
+            "/api/admin/rentals?status=returned"
+        );
+
+        const rentals = await response.json();
+
+        const container = document.getElementById(
+            "rentalHistoryList"
+        );
+
+        if (rentals.length === 0) {
+
+            container.innerHTML = `
+                <div
+                    class="alert alert-info"
+                >
+                    No rental history.
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        container.innerHTML = "";
+
+
+        rentals.forEach(
+            rental => {
+
+                const bookTitle = rental.book_title_en ||
+                    rental.book_title_ml ||
+                    "Untitled";
+
+                const author = rental.book_author
+                    ? ` by ${rental.book_author}`
+                    : "";
+
+                const borrowedDate = new Date(
+                    rental.borrowed_date
+                ).toLocaleDateString();
+
+                const returnedDate = rental.returned_date
+                    ? new Date(
+                        rental.returned_date
+                    ).toLocaleDateString()
+                    : "N/A";
+
+                const card = document.createElement(
+                    "div"
+                );
+
+                card.className = "card mb-2";
+
+                card.innerHTML = `
+
+                    <div
+                        class="card-body py-2"
+                    >
+
+                        <p class="mb-1">
+                            <strong>${bookTitle}${author}</strong>
+                        </p>
+
+                        <small class="text-muted">
+                            Member: ${rental.user_name} |
+                            Borrowed: ${borrowedDate} |
+                            Returned: ${returnedDate}
+                        </small>
+
+                    </div>
+
+                `;
+
+                container.appendChild(card);
+
+            }
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Error loading rental history:",
+            error
+        );
+
+    }
+
+}
+
+
+// ISSUE BOOK FORM SUBMISSION
+
+document
+    .getElementById(
+        "rentalForm"
+    )
+    .addEventListener(
+        "submit",
+        async (event) => {
+
+            event.preventDefault();
+
+            const message = document.getElementById(
+                "rentalMessage"
+            );
+
+            const userId = document.getElementById(
+                "rental_user_id"
+            ).value;
+
+            const bookId = document.getElementById(
+                "rental_book_id"
+            ).value;
+
+            const dueDate = document.getElementById(
+                "rental_due_date"
+            ).value;
+
+
+            if (!userId || !bookId || !dueDate) {
+
+                message.innerHTML = `
+
+                    <div
+                        class="alert alert-danger"
+                    >
+                        Please fill all fields.
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+            try {
+
+                const response = await fetch(
+                    "/api/admin/rentals",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            user_id: parseInt(userId),
+                            book_id: parseInt(bookId),
+                            due_date: new Date(
+                                dueDate
+                            ).toISOString()
+                        })
+                    }
+                );
+
+
+                const data = await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.detail ||
+                        "Failed to issue book."
+                    );
+
+                }
+
+
+                message.innerHTML = `
+
+                    <div
+                        class="alert alert-success"
+                    >
+                        Book issued successfully.
+                    </div>
+
+                `;
+
+
+                document
+                    .getElementById(
+                        "rentalForm"
+                    )
+                    .reset();
+
+
+                loadAvailableBooks();
+
+                loadActiveRentals();
+
+            }
+
+
+            catch (error) {
+
+                message.innerHTML = `
+
+                    <div
+                        class="alert alert-danger"
+                    >
+                        ${error.message}
+                    </div>
+
+                `;
+
+            }
+
+        }
+    );
+
+
+// RETURN BOOK
+
+async function returnBook(rentalId) {
+
+    if (
+        !confirm(
+            "Mark this book as returned?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const response = await fetch(
+            `/api/admin/rentals/${rentalId}/return`,
+            {
+                method: "PUT"
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail ||
+                "Failed to return book."
+            );
+
+        }
+
+
+        const message = document.getElementById(
+            "rentalMessage"
+        );
+
+        message.innerHTML = `
+
+            <div
+                class="alert alert-success"
+            >
+                Book returned successfully.
+            </div>
+
+        `;
+
+
+        setTimeout(
+            () => {
+                message.innerHTML = "";
+            },
+            3000
+        );
+
+
+        loadAvailableBooks();
+
+        loadActiveRentals();
+
+        loadRentalHistory();
+
+    }
+
+
+    catch (error) {
+
+        const message = document.getElementById(
+            "rentalMessage"
+        );
+
+        message.innerHTML = `
+
+            <div
+                class="alert alert-danger"
+            >
+                ${error.message}
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+
+// =========================================================
 // INITIAL LOAD
 // =========================================================
 
@@ -1827,6 +2515,14 @@ loadBooks();
 loadBuildingUpdates();
 
 loadSettings();
+
+loadMembers();
+
+loadAvailableBooks();
+
+loadActiveRentals();
+
+loadRentalHistory();
 
 
 </script>
