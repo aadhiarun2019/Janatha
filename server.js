@@ -9,9 +9,8 @@ const crypto = require('node:crypto');
 const { DatabaseSync } = require('node:sqlite');
 
 const PORT = process.env.PORT || 3000;
-// IMPORTANT: change this before you deploy the site publicly.
-// You can also set it via: ADMIN_PASSWORD=yourpassword node server.js
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'vayanashala2024';
+// Legacy reference only. Never store the legacy admin password in source.
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 const DB_PATH = path.join(__dirname, 'library.db');
 const PUBLIC_DIR = path.join(__dirname, 'public');

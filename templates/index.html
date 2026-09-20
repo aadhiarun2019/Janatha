@@ -102,6 +102,7 @@
   form.auth-form button:hover{background:var(--maroon-deep);}
   .demo-note{margin-top:14px;font-size:0.72rem;color:var(--ink-soft);text-align:center;line-height:1.5;}
   .form-msg{font-size:0.82rem;color:var(--green-leaf);font-weight:600;min-height:1.2em;}
+  .membership-note{margin:0;color:var(--ink-soft);font-size:0.7rem;line-height:1.5;text-align:center;}
   [hidden]{display:none !important;}
 
   /* admin */
@@ -234,6 +235,7 @@
       <h2 class="display" data-i18n="tabAdmin" style="color:var(--maroon-deep);margin-top:0;"></h2>
       <div id="adminLockView" class="admin-lock">
         <p data-i18n="adminPrompt" style="color:var(--ink-soft);"></p>
+        <input type="text" id="adminUsernameInput" placeholder="Admin username" autocomplete="username">
         <input type="password" id="adminPasswordInput" data-i18n-ph="adminPasswordPh">
         <div><button id="adminUnlockBtn" data-i18n="adminUnlockBtn"></button></div>
         <div class="form-msg" id="adminLockMsg"></div>
@@ -280,6 +282,7 @@
       <label data-i18n="lblConfirmPass"></label>
       <input type="password" name="confirm_password" required autocomplete="new-password" data-i18n-ph="phConfirmPass">
       <button type="submit" data-i18n="btnRegister"></button>
+      <p class="membership-note" data-i18n="membershipNote"></p>
       <div class="form-msg" id="registerMsg"></div>
     </form>
   </div>
@@ -335,6 +338,7 @@ const dict = {
   lblConfirmPass:{ml:"പാസ്‌വേഡ് സ്ഥിരീകരിക്കുക",en:"Confirm password"},
   phConfirmPass:{ml:"പാസ്‌വേഡ് വീണ്ടും നൽകുക",en:"Re-enter password"},
   btnRegister:{ml:"അംഗത്വത്തിന് അപേക്ഷിക്കുക",en:"Apply for membership"},
+  membershipNote:{ml:"ഇത് വെബ്സൈറ്റ് ആക്സസിനുള്ള ഒരു പാസ് മാത്രമാണ്; യഥാർത്ഥ ലൈബ്രറി അംഗത്വമല്ല.",en:"This provides access to the website only; it is not an official library membership."},
   adminPrompt:{ml:"ഉള്ളടക്കം തിരുത്താൻ അഡ്മിൻ പാസ്‌വേഡ് നൽകുക.",en:"Enter the admin password to edit site content."},
   adminPasswordPh:{ml:"അഡ്മിൻ പാസ്‌വേഡ്",en:"Admin password"},
   adminUnlockBtn:{ml:"തുറക്കുക",en:"Unlock"},
@@ -481,15 +485,18 @@ async function loadContent(){
   }
 }
 
-// Note: Admin authentication functionality preserved but not migrated yet
-async function verifyAdminPassword(pw){
+async function loginAdmin(username, password){
   try{
-    const res = await fetch("/api/admin/login", {
+    const form = new FormData();
+    form.append("username", username);
+    form.append("password", password);
+
+    const res = await fetch("/admin/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password: pw })
+      body: form
     });
-    return res.ok;
+    const data = await res.json();
+    return res.ok && !data.error;
   }catch(e){
     return false;
   }
@@ -850,14 +857,11 @@ document.querySelectorAll(".tab-btn").forEach(btn=>{
 });
 
 document.getElementById("adminUnlockBtn").addEventListener("click", async ()=>{
-  const val = document.getElementById("adminPasswordInput").value;
-  const ok = await verifyAdminPassword(val);
+  const username = document.getElementById("adminUsernameInput").value.trim();
+  const password = document.getElementById("adminPasswordInput").value;
+  const ok = await loginAdmin(username, password);
   if(ok){
-    adminPassword = val;
-    isAdminAuthed = true;
-    document.getElementById("adminLockView").hidden = true;
-    document.getElementById("adminEditorView").hidden = false;
-    renderAdminEditor();
+    window.location.href = "/admin";
   }else{
     document.getElementById("adminLockMsg").textContent = dict.adminWrongPassword[currentLang];
   }
