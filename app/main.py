@@ -3,19 +3,23 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
+from dotenv import load_dotenv
 
+from app.database.database import settings
 from app.routes.public import router as public_router
 from app.routes.auth import router as auth_router
 from app.routes.uploads import router as upload_router
 from app.routes.rentals import router as rentals_router
 
 
+load_dotenv()
+
 app = FastAPI(title="Janatha Library")
 
 
 app.add_middleware(
     SessionMiddleware,
-    secret_key="change-this-later"
+    secret_key=settings.SESSION_SECRET,
 )
 
 

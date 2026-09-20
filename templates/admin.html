@@ -1956,6 +1956,49 @@ async function deleteSetting(id) {
 // =========================================================
 
 
+function formatRentalDate(dateStr) {
+
+    if (!dateStr) {
+        return "-";
+    }
+
+    const d = new Date(dateStr);
+
+    if (isNaN(d.getTime())) {
+        return dateStr;
+    }
+
+    return d.toLocaleDateString(
+        undefined,
+        {
+            year: "numeric",
+            month: "short",
+            day: "numeric"
+        }
+    );
+
+}
+
+
+function getRentalBookTitle(rental) {
+
+    const en =
+        rental.book_title_en ||
+        "";
+
+    const ml =
+        rental.book_title_ml ||
+        "";
+
+    if (en && ml) {
+        return `${en} / ${ml}`;
+    }
+
+    return en || ml || "Untitled";
+
+}
+
+
 // LOAD MEMBERS FOR DROPDOWN
 
 async function loadMembers() {
@@ -1972,11 +2015,27 @@ async function loadMembers() {
             "rental_user_id"
         );
 
+        if (!select) {
+            return;
+        }
+
         select.innerHTML = `
             <option value="">
                 -- Select Member --
             </option>
         `;
+
+        if (!Array.isArray(members) || members.length === 0) {
+
+            select.innerHTML = `
+                <option value="">
+                    No active members found
+                </option>
+            `;
+
+            return;
+
+        }
 
         members.forEach(
             member => {
@@ -2022,19 +2081,37 @@ async function loadAvailableBooks() {
 
         const books = await response.json();
 
-        const availableBooks = books.filter(
-            book => book.is_available
-        );
-
         const select = document.getElementById(
             "rental_book_id"
         );
+
+        if (!select) {
+            return;
+        }
+
+        const availableBooks = Array.isArray(books)
+            ? books.filter(
+                book => book.is_available
+            )
+            : [];
 
         select.innerHTML = `
             <option value="">
                 -- Select Book --
             </option>
         `;
+
+        if (availableBooks.length === 0) {
+
+            select.innerHTML = `
+                <option value="">
+                    No available books
+                </option>
+            `;
+
+            return;
+
+        }
 
         availableBooks.forEach(
             book => {
@@ -2045,9 +2122,11 @@ async function loadAvailableBooks() {
 
                 option.value = book.id;
 
-                const title = book.title_en ||
-                    book.title_ml ||
-                    "Untitled";
+                const en = book.title_en || "";
+                const ml = book.title_ml || "";
+                const title = (en && ml)
+                    ? `${en} / ${ml}`
+                    : (en || ml || "Untitled");
 
                 const author = book.author
                     ? ` by ${book.author}`
@@ -2092,12 +2171,14 @@ async function loadActiveRentals() {
             "activeRentalsList"
         );
 
-        if (rentals.length === 0) {
+        if (!container) {
+            return;
+        }
+
+        if (!Array.isArray(rentals) || rentals.length === 0) {
 
             container.innerHTML = `
-                <div
-                    class="alert alert-info"
-                >
+                <div class="alert alert-info mb-0">
                     No active rentals.
                 </div>
             `;
@@ -2106,74 +2187,89 @@ async function loadActiveRentals() {
 
         }
 
-
-        container.innerHTML = "";
-
+        let html = `
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Book</th>
+                            <th>Member</th>
+                            <th>Borrowed Date</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
 
         rentals.forEach(
             rental => {
 
-                const bookTitle = rental.book_title_en ||
-                    rental.book_title_ml ||
-                    "Untitled";
+                const bookTitle = getRentalBookTitle(rental);
 
                 const author = rental.book_author
-                    ? ` by ${rental.book_author}`
+                    ? `<br><small class="text-muted">by ${rental.book_author}</small>`
                     : "";
 
-                const borrowedDate = new Date(
+                const memberName = rental.user_name || "N/A";
+
+                const memberUsername = rental.user_username
+                    ? `<br><small class="text-muted">@${rental.user_username}</small>`
+                    : "";
+
+                const borrowedDate = formatRentalDate(
                     rental.borrowed_date
-                ).toLocaleDateString();
-
-                const dueDate = new Date(
-                    rental.due_date
-                ).toLocaleDateString();
-
-                const card = document.createElement(
-                    "div"
                 );
 
-                card.className = "card mb-3";
+                const dueDate = formatRentalDate(
+                    rental.due_date
+                );
 
-                card.innerHTML = `
-
-                    <div class="card-body">
-
-                        <h6 class="card-title">
-                            ${bookTitle}${author}
-                        </h6>
-
-                        <p class="card-text mb-2">
-                            <strong>Member:</strong>
-                            ${rental.user_name}
-                            (${rental.user_username})
-                        </p>
-
-                        <p class="card-text mb-2">
-                            <strong>Borrowed:</strong>
-                            ${borrowedDate}
-                        </p>
-
-                        <p class="card-text mb-3">
-                            <strong>Due:</strong>
-                            ${dueDate}
-                        </p>
-
-                        <button
-                            class="btn btn-success btn-sm"
-                            onclick="returnBook(${rental.id})"
-                        >
-                            Mark as Returned
-                        </button>
-
-                    </div>
-
+                const statusBadge = `
+                    <span class="badge bg-warning text-dark text-capitalize">
+                        ${rental.status || "active"}
+                    </span>
                 `;
 
-                container.appendChild(card);
+                html += `
+                    <tr>
+                        <td>
+                            <strong>${bookTitle}</strong>${author}
+                        </td>
+                        <td>
+                            <strong>${memberName}</strong>${memberUsername}
+                        </td>
+                        <td>
+                            ${borrowedDate}
+                        </td>
+                        <td>
+                            ${dueDate}
+                        </td>
+                        <td>
+                            ${statusBadge}
+                        </td>
+                        <td>
+                            <button
+                                class="btn btn-sm btn-success"
+                                onclick="returnBook(${rental.id})"
+                            >
+                                Mark as Returned
+                            </button>
+                        </td>
+                    </tr>
+                `;
 
             }
         );
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        container.innerHTML = html;
 
     }
 
@@ -2183,6 +2279,18 @@ async function loadActiveRentals() {
             "Error loading active rentals:",
             error
         );
+
+        const container = document.getElementById(
+            "activeRentalsList"
+        );
+
+        if (container) {
+            container.innerHTML = `
+                <div class="alert alert-danger mb-0">
+                    Failed to load active rentals.
+                </div>
+            `;
+        }
 
     }
 
@@ -2205,12 +2313,14 @@ async function loadRentalHistory() {
             "rentalHistoryList"
         );
 
-        if (rentals.length === 0) {
+        if (!container) {
+            return;
+        }
+
+        if (!Array.isArray(rentals) || rentals.length === 0) {
 
             container.innerHTML = `
-                <div
-                    class="alert alert-info"
-                >
+                <div class="alert alert-info mb-0">
                     No rental history.
                 </div>
             `;
@@ -2219,61 +2329,88 @@ async function loadRentalHistory() {
 
         }
 
-
-        container.innerHTML = "";
-
+        let html = `
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Book</th>
+                            <th>Member</th>
+                            <th>Borrowed Date</th>
+                            <th>Due Date</th>
+                            <th>Returned Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
 
         rentals.forEach(
             rental => {
 
-                const bookTitle = rental.book_title_en ||
-                    rental.book_title_ml ||
-                    "Untitled";
+                const bookTitle = getRentalBookTitle(rental);
 
                 const author = rental.book_author
-                    ? ` by ${rental.book_author}`
+                    ? `<br><small class="text-muted">by ${rental.book_author}</small>`
                     : "";
 
-                const borrowedDate = new Date(
+                const memberName = rental.user_name || "N/A";
+
+                const memberUsername = rental.user_username
+                    ? `<br><small class="text-muted">@${rental.user_username}</small>`
+                    : "";
+
+                const borrowedDate = formatRentalDate(
                     rental.borrowed_date
-                ).toLocaleDateString();
-
-                const returnedDate = rental.returned_date
-                    ? new Date(
-                        rental.returned_date
-                    ).toLocaleDateString()
-                    : "N/A";
-
-                const card = document.createElement(
-                    "div"
                 );
 
-                card.className = "card mb-2";
+                const dueDate = formatRentalDate(
+                    rental.due_date
+                );
 
-                card.innerHTML = `
+                const returnedDate = formatRentalDate(
+                    rental.returned_date
+                );
 
-                    <div
-                        class="card-body py-2"
-                    >
-
-                        <p class="mb-1">
-                            <strong>${bookTitle}${author}</strong>
-                        </p>
-
-                        <small class="text-muted">
-                            Member: ${rental.user_name} |
-                            Borrowed: ${borrowedDate} |
-                            Returned: ${returnedDate}
-                        </small>
-
-                    </div>
-
+                const statusBadge = `
+                    <span class="badge bg-secondary text-capitalize">
+                        ${rental.status || "returned"}
+                    </span>
                 `;
 
-                container.appendChild(card);
+                html += `
+                    <tr>
+                        <td>
+                            <strong>${bookTitle}</strong>${author}
+                        </td>
+                        <td>
+                            <strong>${memberName}</strong>${memberUsername}
+                        </td>
+                        <td>
+                            ${borrowedDate}
+                        </td>
+                        <td>
+                            ${dueDate}
+                        </td>
+                        <td>
+                            ${returnedDate}
+                        </td>
+                        <td>
+                            ${statusBadge}
+                        </td>
+                    </tr>
+                `;
 
             }
         );
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        container.innerHTML = html;
 
     }
 
@@ -2283,6 +2420,18 @@ async function loadRentalHistory() {
             "Error loading rental history:",
             error
         );
+
+        const container = document.getElementById(
+            "rentalHistoryList"
+        );
+
+        if (container) {
+            container.innerHTML = `
+                <div class="alert alert-danger mb-0">
+                    Failed to load rental history.
+                </div>
+            `;
+        }
 
     }
 
@@ -2297,7 +2446,7 @@ document
     )
     .addEventListener(
         "submit",
-        async (event) => {
+        async function(event) {
 
             event.preventDefault();
 
@@ -2321,13 +2470,9 @@ document
             if (!userId || !bookId || !dueDate) {
 
                 message.innerHTML = `
-
-                    <div
-                        class="alert alert-danger"
-                    >
+                    <div class="alert alert-danger">
                         Please fill all fields.
                     </div>
-
                 `;
 
                 return;
@@ -2345,11 +2490,9 @@ document
                             "Content-Type": "application/json"
                         },
                         body: JSON.stringify({
-                            user_id: parseInt(userId),
-                            book_id: parseInt(bookId),
-                            due_date: new Date(
-                                dueDate
-                            ).toISOString()
+                            user_id: parseInt(userId, 10),
+                            book_id: parseInt(bookId, 10),
+                            due_date: `${dueDate}T23:59:59`
                         })
                     }
                 );
@@ -2360,22 +2503,35 @@ document
 
                 if (!response.ok) {
 
-                    throw new Error(
-                        data.detail ||
-                        "Failed to issue book."
-                    );
+                    let errorMsg = "Failed to issue book.";
+
+                    if (data.detail) {
+
+                        if (Array.isArray(data.detail)) {
+
+                            errorMsg = data.detail
+                                .map(e => e.msg)
+                                .join(", ");
+
+                        }
+
+                        else if (typeof data.detail === "string") {
+
+                            errorMsg = data.detail;
+
+                        }
+
+                    }
+
+                    throw new Error(errorMsg);
 
                 }
 
 
                 message.innerHTML = `
-
-                    <div
-                        class="alert alert-success"
-                    >
-                        Book issued successfully.
+                    <div class="alert alert-success">
+                        ${data.message || "Book issued successfully."}
                     </div>
-
                 `;
 
 
@@ -2387,8 +2543,9 @@ document
 
 
                 loadAvailableBooks();
-
                 loadActiveRentals();
+                loadRentalHistory();
+                loadBooks();
 
             }
 
@@ -2396,13 +2553,9 @@ document
             catch (error) {
 
                 message.innerHTML = `
-
-                    <div
-                        class="alert alert-danger"
-                    >
+                    <div class="alert alert-danger">
                         ${error.message}
                     </div>
-
                 `;
 
             }
@@ -2420,11 +2573,12 @@ async function returnBook(rentalId) {
             "Mark this book as returned?"
         )
     ) {
-
         return;
-
     }
 
+    const message = document.getElementById(
+        "rentalMessage"
+    );
 
     try {
 
@@ -2441,60 +2595,52 @@ async function returnBook(rentalId) {
 
         if (!response.ok) {
 
-            throw new Error(
-                data.detail ||
-                "Failed to return book."
-            );
+            let errorMsg = "Failed to return book.";
+
+            if (data.detail) {
+
+                if (Array.isArray(data.detail)) {
+
+                    errorMsg = data.detail
+                        .map(e => e.msg)
+                        .join(", ");
+
+                }
+
+                else if (typeof data.detail === "string") {
+
+                    errorMsg = data.detail;
+
+                }
+
+            }
+
+            throw new Error(errorMsg);
 
         }
 
 
-        const message = document.getElementById(
-            "rentalMessage"
-        );
-
         message.innerHTML = `
-
-            <div
-                class="alert alert-success"
-            >
-                Book returned successfully.
+            <div class="alert alert-success">
+                ${data.message || "Book returned successfully."}
             </div>
-
         `;
 
 
-        setTimeout(
-            () => {
-                message.innerHTML = "";
-            },
-            3000
-        );
-
-
         loadAvailableBooks();
-
         loadActiveRentals();
-
         loadRentalHistory();
+        loadBooks();
 
     }
 
 
     catch (error) {
 
-        const message = document.getElementById(
-            "rentalMessage"
-        );
-
         message.innerHTML = `
-
-            <div
-                class="alert alert-danger"
-            >
+            <div class="alert alert-danger">
                 ${error.message}
             </div>
-
         `;
 
     }
@@ -2508,20 +2654,19 @@ async function returnBook(rentalId) {
 // =========================================================
 
 
+const todayIso = new Date().toISOString().split("T")[0];
+const dueDateInput = document.getElementById("rental_due_date");
+if (dueDateInput) {
+    dueDateInput.setAttribute("min", todayIso);
+}
+
 loadNotices();
-
 loadBooks();
-
 loadBuildingUpdates();
-
 loadSettings();
-
 loadMembers();
-
 loadAvailableBooks();
-
 loadActiveRentals();
-
 loadRentalHistory();
 
 

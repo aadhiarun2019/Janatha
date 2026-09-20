@@ -117,18 +117,16 @@
       <span>Borrowed Books</span>
     </div>
 
-    <div class="empty-state">
-      <div class="empty-state-icon">📚</div>
-      <p>No books currently borrowed.</p>
+    <div id="currentRentals">
+      <div class="loading">Loading borrowed books...</div>
     </div>
 
     <div class="section-title">
       <span>Borrowing History</span>
     </div>
 
-    <div class="empty-state">
-      <div class="empty-state-icon">📖</div>
-      <p>No borrowing history yet.</p>
+    <div id="rentalHistory">
+      <div class="loading">Loading history...</div>
     </div>
   </main>
 
@@ -142,6 +140,151 @@
 </div>
 
 <script>
+function formatDate(dateStr) {
+  if (!dateStr) return "-";
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
+}
+
+function getBookTitle(rental) {
+  const en = rental.book_title_en || "";
+  const ml = rental.book_title_ml || "";
+  if (en && ml) return `${en} / ${ml}`;
+  return en || ml || "Untitled";
+}
+
+async function loadRentals() {
+  try {
+    const response = await fetch("/api/member/rentals");
+    if (!response.ok) throw new Error("Failed to load rentals");
+    const rentals = await response.json();
+
+    const activeRentals = rentals.filter(r => r.status === "active");
+    const returnedRentals = rentals.filter(r => r.status === "returned");
+
+    const currentContainer = document.getElementById("currentRentals");
+    const historyContainer = document.getElementById("rentalHistory");
+
+    // Render Active Rentals
+    if (activeRentals.length === 0) {
+      currentContainer.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📚</div>
+          <p>No books currently borrowed.</p>
+        </div>
+      `;
+    } else {
+      let activeHtml = "";
+      activeRentals.forEach(rental => {
+        const title = getBookTitle(rental);
+        const author = rental.book_author || "N/A";
+        const borrowed = formatDate(rental.borrowed_date);
+        const due = formatDate(rental.due_date);
+
+        activeHtml += `
+          <div class="info-card">
+            <div class="info-row">
+              <div class="info-item">
+                <label>Book Title</label>
+                <div class="value">${title}</div>
+              </div>
+              <div class="info-item">
+                <label>Author</label>
+                <div class="value">${author}</div>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="info-item">
+                <label>Borrowed Date</label>
+                <div class="value">${borrowed}</div>
+              </div>
+              <div class="info-item">
+                <label>Due Date</label>
+                <div class="value">${due}</div>
+              </div>
+              <div class="info-item">
+                <label>Status</label>
+                <div class="value"><span class="status-badge" style="background:var(--gold);color:var(--navy-deep);">Active</span></div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      currentContainer.innerHTML = activeHtml;
+    }
+
+    // Render Returned Rentals
+    if (returnedRentals.length === 0) {
+      historyContainer.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📖</div>
+          <p>No borrowing history yet.</p>
+        </div>
+      `;
+    } else {
+      let historyHtml = "";
+      returnedRentals.forEach(rental => {
+        const title = getBookTitle(rental);
+        const author = rental.book_author || "N/A";
+        const borrowed = formatDate(rental.borrowed_date);
+        const due = formatDate(rental.due_date);
+        const returned = formatDate(rental.returned_date);
+
+        historyHtml += `
+          <div class="info-card" style="border-left-color: var(--green-leaf);">
+            <div class="info-row">
+              <div class="info-item">
+                <label>Book Title</label>
+                <div class="value">${title}</div>
+              </div>
+              <div class="info-item">
+                <label>Author</label>
+                <div class="value">${author}</div>
+              </div>
+            </div>
+            <div class="info-row">
+              <div class="info-item">
+                <label>Borrowed Date</label>
+                <div class="value">${borrowed}</div>
+              </div>
+              <div class="info-item">
+                <label>Due Date</label>
+                <div class="value">${due}</div>
+              </div>
+              <div class="info-item">
+                <label>Returned Date</label>
+                <div class="value">${returned}</div>
+              </div>
+              <div class="info-item">
+                <label>Status</label>
+                <div class="value"><span class="status-badge" style="background:#5a5044;">Returned</span></div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      historyContainer.innerHTML = historyHtml;
+    }
+  } catch (error) {
+    console.error("Error loading rentals:", error);
+    document.getElementById("currentRentals").innerHTML = `
+      <div class="empty-state">
+        <p>Failed to load borrowed books.</p>
+      </div>
+    `;
+    document.getElementById("rentalHistory").innerHTML = `
+      <div class="empty-state">
+        <p>Failed to load borrowing history.</p>
+      </div>
+    `;
+  }
+}
+
 async function loadMember() {
   try {
     const response = await fetch("/api/auth/me");
@@ -162,6 +305,9 @@ async function loadMember() {
     // Show dashboard
     document.getElementById("loading").style.display = "none";
     document.getElementById("dashboard").style.display = "block";
+
+    // Load rentals data
+    await loadRentals();
   } catch (error) {
     console.error("Error loading member data:", error);
     window.location.href = "/";

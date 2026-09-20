@@ -1,5 +1,5 @@
 from app.database.database import SessionLocal
-from app.models.models import Admin
+from app.models.models import User
 from app.services.auth import hash_password
 
 
@@ -8,9 +8,13 @@ password = input("Admin password: ")
 
 db = SessionLocal()
 
-admin = Admin(
+admin = User(
+    full_name=username,
+    email=f"{username}@janatha-library.local",
     username=username,
-    password_hash=hash_password(password)
+    password_hash=hash_password(password),
+    role="admin",
+    is_active=True,
 )
 
 db.add(admin)

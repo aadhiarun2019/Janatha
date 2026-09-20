@@ -127,7 +127,12 @@ def create_rental(
 ):
     """Issue a book to a member"""
     # Validate book exists
-    book = db.query(Book).filter(Book.id == rental_data.book_id).first()
+    book = (
+        db.query(Book)
+        .filter(Book.id == rental_data.book_id)
+        .with_for_update()
+        .first()
+    )
     if not book:
         raise HTTPException(
             status_code=404,
@@ -209,7 +214,12 @@ def return_rental(
     admin_id: int = Depends(require_admin),
 ):
     """Mark a rental as returned"""
-    rental = db.query(Rental).filter(Rental.id == rental_id).first()
+    rental = (
+        db.query(Rental)
+        .filter(Rental.id == rental_id)
+        .with_for_update()
+        .first()
+    )
 
     if not rental:
         raise HTTPException(
@@ -217,14 +227,19 @@ def return_rental(
             detail="Rental not found",
         )
 
-    if rental.status == "returned":
+    if rental.status != "active":
         raise HTTPException(
             status_code=400,
-            detail="Rental is already returned",
+            detail="Rental is not active",
         )
 
     # Get the book
-    book = db.query(Book).filter(Book.id == rental.book_id).first()
+    book = (
+        db.query(Book)
+        .filter(Book.id == rental.book_id)
+        .with_for_update()
+        .first()
+    )
     if not book:
         raise HTTPException(
             status_code=404,
