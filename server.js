@@ -15,7 +15,8 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 
 const PORT = process.env.PORT || 3000;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'vayanashala2024';
+// .trim() removes accidental spaces/newlines copied along with the password
+const ADMIN_PASSWORD = (process.env.ADMIN_PASSWORD || 'vayanashala2024').trim();
 const SUPABASE_URL = (process.env.SUPABASE_URL || '').trim().replace(/\/+$/, '');
 const SUPABASE_KEY = (process.env.SUPABASE_SECRET_KEY || '').trim();
 
@@ -25,6 +26,8 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 }
 if (!process.env.ADMIN_PASSWORD) {
   console.warn('WARNING: ADMIN_PASSWORD not set — using the insecure default. Set it before going live.');
+} else {
+  console.log(`ADMIN_PASSWORD is set (${ADMIN_PASSWORD.length} characters).`);
 }
 
 const PUBLIC_DIR = path.join(__dirname, 'public');
@@ -101,7 +104,7 @@ async function setContentObj(obj) {
 }
 
 function checkAdminPassword(req) {
-  return req.headers['x-admin-password'] === ADMIN_PASSWORD;
+  return String(req.headers['x-admin-password'] || '').trim() === ADMIN_PASSWORD;
 }
 
 // ---- Tiny static file server for the /public folder ----
@@ -251,7 +254,7 @@ const server = http.createServer(async (req, res) => {
       } catch (e) {
         return sendJson(res, 400, { error: 'Invalid request' });
       }
-      return password === ADMIN_PASSWORD
+      return String(password || '').trim() === ADMIN_PASSWORD
         ? sendJson(res, 200, { ok: true })
         : sendJson(res, 401, { ok: false });
     }
