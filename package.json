@@ -1,13 +1,16 @@
 {
   "name": "janatha-library-server",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
-  "description": "Backend server + SQLite database for the Janatha Reading Room & Library website",
+  "description": "Backend server for the Janatha Reading Room & Library website (content stored in Supabase Postgres)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
+  "dependencies": {
+    "pg": "^8.13.0"
+  },
   "engines": {
-    "node": ">=22.5.0"
+    "node": ">=18"
   }
 }

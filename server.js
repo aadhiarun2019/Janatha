@@ -1,64 +1,103 @@
-// Janatha Reading Room & Library — backend server
-// Uses only Node's built-in modules (http + node:sqlite). No "npm install" needed.
-// Requires Node.js 22.5+ (for the built-in SQLite module).
+// Janatha Reading Room & Library — backend server (Supabase web-API version)
+// Content is stored in Supabase over plain HTTPS, so admin edits survive
+// Render restarts, spin-downs and redeploys. No database driver needed.
+//
+// Required environment variables (set in Render -> Environment):
+//   SUPABASE_URL         e.g. https://raovpzgyrdcmldjpgnzj.supabase.co
+//   SUPABASE_SECRET_KEY  the Supabase "secret" key (sb_secret_...) — keep private!
+//   ADMIN_PASSWORD       password for the Admin tab
+// Optional:
+//   PORT                 provided automatically by Render
 
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
-const { DatabaseSync } = require('node:sqlite');
 
 const PORT = process.env.PORT || 3000;
-// IMPORTANT: change this before you deploy the site publicly.
-// You can also set it via: ADMIN_PASSWORD=yourpassword node server.js
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'vayanashala2024';
+const SUPABASE_URL = (process.env.SUPABASE_URL || '').trim().replace(/\/+$/, '');
+const SUPABASE_KEY = (process.env.SUPABASE_SECRET_KEY || '').trim();
 
-const DB_PATH = path.join(__dirname, 'library.db');
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('ERROR: SUPABASE_URL and SUPABASE_SECRET_KEY must be set as environment variables.');
+  process.exit(1);
+}
+if (!process.env.ADMIN_PASSWORD) {
+  console.warn('WARNING: ADMIN_PASSWORD not set — using the insecure default. Set it before going live.');
+}
+
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const DEFAULT_CONTENT = JSON.parse(fs.readFileSync(path.join(__dirname, 'default-content.json'), 'utf8'));
 
-// ---- Database setup ----
-const db = new DatabaseSync(DB_PATH);
-db.exec(`
-  CREATE TABLE IF NOT EXISTS site_content (
-    id INTEGER PRIMARY KEY CHECK (id = 1),
-    data TEXT NOT NULL,
-    updated_at TEXT
-  )
-`);
+// ---- Supabase (PostgREST) helpers ----
+const TABLE_URL = `${SUPABASE_URL}/rest/v1/site_content`;
 
-function ensureSeed() {
-  const row = db.prepare('SELECT id FROM site_content WHERE id = 1').get();
-  if (!row) {
-    db.prepare('INSERT INTO site_content (id, data, updated_at) VALUES (1, ?, ?)')
-      .run(JSON.stringify(DEFAULT_CONTENT), new Date().toISOString());
+function supabaseHeaders(extra = {}) {
+  const headers = { apikey: SUPABASE_KEY, 'Content-Type': 'application/json', ...extra };
+  // New-style keys (sb_secret_...) go in "apikey" only. Old-style JWT keys (eyJ...) also need Authorization.
+  if (SUPABASE_KEY.startsWith('eyJ')) headers.Authorization = `Bearer ${SUPABASE_KEY}`;
+  return headers;
+}
+
+async function supabaseFetch(url, options = {}) {
+  const res = await fetch(url, { ...options, headers: supabaseHeaders(options.headers) });
+  if (!res.ok) {
+    const text = await res.text();
+    let hint = '';
+    if (res.status === 404 && text.includes('site_content')) {
+      hint = ' — the "site_content" table does not exist yet. Run the SQL setup step in Supabase.';
+    } else if (res.status === 401 || res.status === 403) {
+      hint = ' — the Supabase key was rejected. Check SUPABASE_SECRET_KEY.';
+    }
+    throw new Error(`Supabase error ${res.status}: ${text.slice(0, 300)}${hint}`);
+  }
+  return res;
+}
+
+async function readRow() {
+  const res = await supabaseFetch(`${TABLE_URL}?id=eq.1&select=data`);
+  const rows = await res.json();
+  return rows.length ? rows[0].data : null;
+}
+
+async function writeRow(obj, { onlyIfMissing = false } = {}) {
+  await supabaseFetch(`${TABLE_URL}?on_conflict=id`, {
+    method: 'POST',
+    headers: {
+      Prefer: `resolution=${onlyIfMissing ? 'ignore' : 'merge'}-duplicates,return=minimal`,
+    },
+    body: JSON.stringify({ id: 1, data: obj, updated_at: new Date().toISOString() }),
+  });
+}
+
+async function initDb() {
+  const existing = await readRow(); // also proves the URL, key and table are all correct
+  if (existing === null) {
+    await writeRow(DEFAULT_CONTENT, { onlyIfMissing: true });
     console.log('Seeded database with default content.');
+  } else {
+    console.log('Connected to Supabase; existing content found.');
   }
 }
-ensureSeed();
 
-function getContent() {
-  const row = db.prepare('SELECT data FROM site_content WHERE id = 1').get();
-  return row ? row.data : JSON.stringify(DEFAULT_CONTENT);
+async function getContent() {
+  const data = await readRow();
+  return JSON.stringify(data === null ? DEFAULT_CONTENT : data);
 }
 
-function setContent(dataStr) {
-  db.prepare('UPDATE site_content SET data = ?, updated_at = ? WHERE id = 1')
-    .run(dataStr, new Date().toISOString());
+async function setContent(dataStr) {
+  await writeRow(JSON.parse(dataStr));
 }
 
-// Convenience helpers that work with a parsed object instead of a raw string.
-// Used by the /api/admin/notices endpoints below so the admin can add/remove
-// a single "scroll" (ticker notice) without having to resend the entire
-// site content blob.
-function getContentObj() {
-  const obj = JSON.parse(getContent());
+async function getContentObj() {
+  const obj = JSON.parse(await getContent());
   if (!Array.isArray(obj.notices)) obj.notices = [];
   return obj;
 }
 
-function setContentObj(obj) {
-  setContent(JSON.stringify(obj));
+async function setContentObj(obj) {
+  await writeRow(obj);
 }
 
 function checkAdminPassword(req) {
@@ -73,10 +112,13 @@ const MIME = {
   '.json': 'application/json',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
 };
 
 function serveStatic(req, res) {
-  let reqPath = req.url === '/' ? '/index.html' : req.url;
+  const urlPath = decodeURIComponent(req.url.split('?')[0]);
+  const reqPath = urlPath === '/' ? '/index.html' : urlPath;
   const filePath = path.normalize(path.join(PUBLIC_DIR, reqPath));
   if (!filePath.startsWith(PUBLIC_DIR)) {
     res.writeHead(403);
@@ -98,92 +140,86 @@ function serveStatic(req, res) {
 function readBody(req) {
   return new Promise((resolve, reject) => {
     let body = '';
-    req.on('data', (chunk) => (body += chunk));
+    req.on('data', (chunk) => {
+      body += chunk;
+      if (body.length > 20 * 1024 * 1024) { // 20 MB safety limit (images may be embedded)
+        reject(new Error('Body too large'));
+        req.destroy();
+      }
+    });
     req.on('end', () => resolve(body));
     req.on('error', reject);
   });
 }
 
+function sendJson(res, status, obj) {
+  res.writeHead(status, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(obj));
+}
+
 // ---- HTTP server + tiny JSON API ----
 const server = http.createServer(async (req, res) => {
-  // Public: read the current site content
-  if (req.url === '/api/content' && req.method === 'GET') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(getContent());
-    return;
-  }
+  try {
+    const url = req.url.split('?')[0];
 
-  // Admin: save updated site content (requires correct password header)
-  if (req.url === '/api/content' && req.method === 'POST') {
-    const pw = req.headers['x-admin-password'];
-    if (pw !== ADMIN_PASSWORD) {
-      res.writeHead(401, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Unauthorized' }));
+    // Public: read the current site content
+    if (url === '/api/content' && req.method === 'GET') {
+      const data = await getContent();
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+      res.end(data);
       return;
     }
-    try {
-      const body = await readBody(req);
-      JSON.parse(body); // validate it's real JSON before saving
-      setContent(body);
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: true }));
-    } catch (e) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Invalid JSON body' }));
-    }
-    return;
-  }
 
-  // Admin: add a new scrolling notice ("scroll")
-  if (req.url === '/api/admin/notices' && req.method === 'POST') {
-    if (!checkAdminPassword(req)) {
-      res.writeHead(401, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Unauthorized' }));
-      return;
-    }
-    try {
-      const body = await readBody(req);
-      const { text } = JSON.parse(body);
-      if (!text || (!text.ml && !text.en)) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Notice must include text.ml and/or text.en' }));
-        return;
+    // Admin: save updated site content
+    if (url === '/api/content' && req.method === 'POST') {
+      if (!checkAdminPassword(req)) return sendJson(res, 401, { error: 'Unauthorized' });
+      let body;
+      try {
+        body = await readBody(req);
+        JSON.parse(body); // validate before saving
+      } catch (e) {
+        return sendJson(res, 400, { error: 'Invalid JSON body' });
       }
-      const content = getContentObj();
+      await setContent(body);
+      return sendJson(res, 200, { ok: true });
+    }
+
+    // Admin: add a new scrolling notice
+    if (url === '/api/admin/notices' && req.method === 'POST') {
+      if (!checkAdminPassword(req)) return sendJson(res, 401, { error: 'Unauthorized' });
+      let text;
+      try {
+        ({ text } = JSON.parse(await readBody(req)));
+      } catch (e) {
+        return sendJson(res, 400, { error: 'Invalid request body' });
+      }
+      if (!text || (!text.ml && !text.en)) {
+        return sendJson(res, 400, { error: 'Notice must include text.ml and/or text.en' });
+      }
+      const content = await getContentObj();
       const notice = {
         id: crypto.randomUUID(),
         text: { ml: text.ml || '', en: text.en || '' },
         active: true,
       };
       content.notices.push(notice);
-      setContentObj(content);
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: true, notice, notices: content.notices }));
-    } catch (e) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Invalid request body' }));
+      await setContentObj(content);
+      return sendJson(res, 200, { ok: true, notice, notices: content.notices });
     }
-    return;
-  }
 
-  // Admin: toggle a notice active/inactive, or edit its text
-  if (req.url.match(/^\/api\/admin\/notices\/[^/]+$/) && req.method === 'PATCH') {
-    if (!checkAdminPassword(req)) {
-      res.writeHead(401, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Unauthorized' }));
-      return;
-    }
-    const id = decodeURIComponent(req.url.split('/').pop());
-    try {
-      const body = await readBody(req);
-      const updates = JSON.parse(body); // e.g. { active: false } or { text: { ml, en } }
-      const content = getContentObj();
-      const notice = content.notices.find((n) => n.id === id);
-      if (!notice) {
-        res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Notice not found' }));
-        return;
+    // Admin: edit or toggle a notice
+    if (/^\/api\/admin\/notices\/[^/]+$/.test(url) && req.method === 'PATCH') {
+      if (!checkAdminPassword(req)) return sendJson(res, 401, { error: 'Unauthorized' });
+      const id = decodeURIComponent(url.split('/').pop());
+      let updates;
+      try {
+        updates = JSON.parse(await readBody(req));
+      } catch (e) {
+        return sendJson(res, 400, { error: 'Invalid request body' });
       }
+      const content = await getContentObj();
+      const notice = content.notices.find((n) => n.id === id);
+      if (!notice) return sendJson(res, 404, { error: 'Notice not found' });
       if (typeof updates.active === 'boolean') notice.active = updates.active;
       if (updates.text) {
         notice.text = {
@@ -191,62 +227,52 @@ const server = http.createServer(async (req, res) => {
           en: updates.text.en ?? notice.text.en,
         };
       }
-      setContentObj(content);
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ok: true, notice, notices: content.notices }));
-    } catch (e) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Invalid request body' }));
+      await setContentObj(content);
+      return sendJson(res, 200, { ok: true, notice, notices: content.notices });
     }
-    return;
-  }
 
-  // Admin: delete a scrolling notice
-  if (req.url.match(/^\/api\/admin\/notices\/[^/]+$/) && req.method === 'DELETE') {
-    if (!checkAdminPassword(req)) {
-      res.writeHead(401, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Unauthorized' }));
-      return;
+    // Admin: delete a notice
+    if (/^\/api\/admin\/notices\/[^/]+$/.test(url) && req.method === 'DELETE') {
+      if (!checkAdminPassword(req)) return sendJson(res, 401, { error: 'Unauthorized' });
+      const id = decodeURIComponent(url.split('/').pop());
+      const content = await getContentObj();
+      const before = content.notices.length;
+      content.notices = content.notices.filter((n) => n.id !== id);
+      if (content.notices.length === before) return sendJson(res, 404, { error: 'Notice not found' });
+      await setContentObj(content);
+      return sendJson(res, 200, { ok: true, notices: content.notices });
     }
-    const id = decodeURIComponent(req.url.split('/').pop());
-    const content = getContentObj();
-    const before = content.notices.length;
-    content.notices = content.notices.filter((n) => n.id !== id);
-    if (content.notices.length === before) {
-      res.writeHead(404, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Notice not found' }));
-      return;
-    }
-    setContentObj(content);
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ ok: true, notices: content.notices }));
-    return;
-  }
 
-  // Admin: check password without saving anything (used to unlock the Admin tab)
-  if (req.url === '/api/admin/login' && req.method === 'POST') {
-    try {
-      const body = await readBody(req);
-      const { password } = JSON.parse(body);
-      if (password === ADMIN_PASSWORD) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ ok: true }));
-      } else {
-        res.writeHead(401, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ ok: false }));
+    // Admin: check password (unlocks the Admin tab)
+    if (url === '/api/admin/login' && req.method === 'POST') {
+      let password;
+      try {
+        ({ password } = JSON.parse(await readBody(req)));
+      } catch (e) {
+        return sendJson(res, 400, { error: 'Invalid request' });
       }
-    } catch (e) {
-      res.writeHead(400, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ error: 'Invalid request' }));
+      return password === ADMIN_PASSWORD
+        ? sendJson(res, 200, { ok: true })
+        : sendJson(res, 401, { ok: false });
     }
-    return;
+
+    // Everything else: serve the website files
+    serveStatic(req, res);
+  } catch (err) {
+    console.error('Request error:', err.message);
+    if (!res.headersSent) sendJson(res, 500, { error: 'Server error' });
+    else res.end();
   }
-
-  // Everything else: serve the website files
-  serveStatic(req, res);
 });
 
-server.listen(PORT, () => {
-  console.log(`Janatha Library server running at http://localhost:${PORT}`);
-  console.log(`Database file: ${DB_PATH}`);
-});
+// Start the server only after the database check passes
+initDb()
+  .then(() => {
+    server.listen(PORT, () => {
+      console.log(`Janatha Library server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Could not reach the database:', err.message);
+    process.exit(1);
+  });
