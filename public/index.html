@@ -156,6 +156,42 @@
   .admin-check{display:flex;align-items:center;gap:7px;font-size:0.8rem;color:var(--ink-soft);margin-top:6px;}
   .admin-status.err{color:var(--maroon);}
 
+  /* ---- card photos (Sports/Balavedhi/custom card pages) ---- */
+  .card-photo{display:block;width:calc(100% + 36px);margin:-18px -18px 12px;max-height:160px;object-fit:cover;border-radius:10px 10px 0 0;}
+
+  /* ---- About page: office bearers / contacts table ---- */
+  .bearers-title{margin:26px 0 10px;font-size:1.02rem;color:var(--maroon-deep);border-bottom:2px solid var(--gold);padding-bottom:6px;}
+  .bearers-table-wrap{overflow-x:auto;}
+  .bearers-table{width:100%;border-collapse:collapse;min-width:420px;}
+  .bearers-table th,.bearers-table td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--paper-dark);font-size:0.86rem;color:var(--ink-soft);}
+  .bearers-table th{color:var(--maroon-deep);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.3px;font-weight:700;}
+  .bearers-table tr:last-child td{border-bottom:none;}
+
+  /* ---- admin: appearance picker ---- */
+  .admin-help{margin-bottom:14px;}
+
+  /* ==================================================================
+     Color schemes — override the base palette declared in :root.
+     Selecting a scheme in Admin sets html[data-theme], which (being
+     more specific + later in the stylesheet) wins over the :root values.
+     ================================================================== */
+  html[data-theme="navy"]{
+    --maroon:#123a5c; --maroon-deep:#0a2338; --gold:#4fb3a9; --gold-light:#8fd9cf;
+    --navy:#0c2038; --navy-deep:#081627; --green-leaf:#4fb3a9;
+  }
+  html[data-theme="forest"]{
+    --maroon:#39562f; --maroon-deep:#233c1c; --gold:#c99a3f; --gold-light:#e7c988;
+    --navy:#22321c; --navy-deep:#182414; --green-leaf:#8aa550;
+  }
+  html[data-theme="plum"]{
+    --maroon:#5b2a63; --maroon-deep:#3c1a42; --gold:#caa24d; --gold-light:#e8cf8a;
+    --navy:#241a33; --navy-deep:#181022; --green-leaf:#a97cc9;
+  }
+
+  /* ---- font styles: "modern" reuses the already-loaded sans fonts for headings ---- */
+  html[lang="ml"][data-font="modern"] .display{font-family:'Noto Sans Malayalam','Inter',sans-serif;}
+  html[lang="en"][data-font="modern"] .display{font-family:'Inter','Noto Sans Malayalam',sans-serif;}
+
 </style>
 </head>
 <body>
@@ -566,6 +602,74 @@ const dict = {
  "adminSaveFailed": {
   "ml": "സേവ് ചെയ്യാനായില്ല — കണക്ഷനും പാസ്‌വേഡും പരിശോധിക്കുക",
   "en": "Could not save — check your connection and password"
+ },
+ "lblCardPhoto": {
+  "ml": "ഫോട്ടോ",
+  "en": "Photo"
+ },
+ "lblShowPhoto": {
+  "ml": "ഫോട്ടോ സൈറ്റിൽ കാണിക്കുക",
+  "en": "Show photo on the site"
+ },
+ "secBearers": {
+  "ml": "പ്രധാന ബന്ധപ്പെടേണ്ടവർ / ഭാരവാഹികൾ",
+  "en": "Important contacts / office bearers"
+ },
+ "bearersHelp": {
+  "ml": "പേര്, സ്ഥാനം, ഫോൺ നമ്പർ എന്നിവ ചേർക്കുക. ആവശ്യമുള്ളത്ര വരികൾ ചേർക്കാം.",
+  "en": "Add a name, designation and phone number. Add as many rows as you need."
+ },
+ "lblBearerName": {
+  "ml": "പേര്",
+  "en": "Name"
+ },
+ "lblBearerDesignation": {
+  "ml": "സ്ഥാനം",
+  "en": "Designation"
+ },
+ "lblBearerContact": {
+  "ml": "ബന്ധപ്പെടേണ്ട നമ്പർ",
+  "en": "Contact"
+ },
+ "btnAddBearer": {
+  "ml": "+ വരി ചേർക്കുക",
+  "en": "+ Add row"
+ },
+ "secAppearance": {
+  "ml": "രൂപകൽപ്പന",
+  "en": "Appearance"
+ },
+ "lblColorScheme": {
+  "ml": "നിറ പദ്ധതി",
+  "en": "Color scheme"
+ },
+ "lblFontStyle": {
+  "ml": "അക്ഷര ശൈലി",
+  "en": "Font style"
+ },
+ "themeClassic": {
+  "ml": "ക്ലാസിക് (മറൂൺ & ഗോൾഡ്)",
+  "en": "Classic (Maroon & Gold)"
+ },
+ "themeNavy": {
+  "ml": "നേവി & ടീൽ",
+  "en": "Navy & Teal"
+ },
+ "themeForest": {
+  "ml": "ഫോറസ്റ്റ് ഗ്രീൻ",
+  "en": "Forest Green"
+ },
+ "themePlum": {
+  "ml": "റോയൽ പ്ലം",
+  "en": "Royal Plum"
+ },
+ "fontClassic": {
+  "ml": "ക്ലാസിക് (അലങ്കാര ശീർഷകങ്ങൾ)",
+  "en": "Classic (decorative headings)"
+ },
+ "fontModern": {
+  "ml": "മോഡേൺ (ലളിതമായ ശീർഷകങ്ങൾ)",
+  "en": "Modern (plain headings)"
  }
 };
 
@@ -579,7 +683,9 @@ const defaultContent = {
   "location": {
    "ml": "കേരളാദിത്യപുരം",
    "en": "Keraladithyapuram"
-  }
+  },
+  "theme": "classic",
+  "font": "classic"
  },
  "notices": [
   {
@@ -1100,6 +1206,24 @@ const defaultContent = {
      "en": "Library committee"
     }
    }
+  ],
+  "bearers": [
+   {
+    "name": "",
+    "designation": {
+     "ml": "പ്രസിഡന്റ്",
+     "en": "President"
+    },
+    "contact": ""
+   },
+   {
+    "name": "",
+    "designation": {
+     "ml": "സെക്രട്ടറി",
+     "en": "Secretary"
+    },
+    "contact": ""
+   }
   ]
  },
  "footer": {
@@ -1189,7 +1313,9 @@ function normalizeContent(raw){
   if(raw.hero) d.hero = raw.hero;
   if(Array.isArray(raw.books)) d.books = raw.books;
   if(raw.building) d.building = raw.building;
-  if(raw.about) d.about = raw.about;
+  // merge (not replace) so fields the old format never had — like sample office bearers — survive
+  if(raw.about) d.about = Object.assign({}, d.about, raw.about);
+  if(!Array.isArray(d.about.bearers)) d.about.bearers = [];
   if(raw.footer && raw.footer.address) d.footer.address = raw.footer.address;
   if(raw.stats && !Array.isArray(raw.stats)){
     if(raw.stats.reg) d.stats[0].value = raw.stats.reg;
@@ -1333,10 +1459,18 @@ const PAGE_RENDERERS = {
   },
   about(p){
     const meta = content.about.meta.map(m=>`<div><strong>${esc(L(m.lbl))}</strong><span>${esc(L(m.val))}</span></div>`).join("");
-    return pageHead(p, false) + `<div class="about-body"><p>${esc(L(content.about.p1))}</p><p>${esc(L(content.about.p2))}</p></div><div class="about-meta">${meta}</div>`;
+    const bearers = content.about.bearers || [];
+    const bearersHtml = bearers.length ? `<h3 class="bearers-title">${esc(t("secBearers"))}</h3>
+      <div class="bearers-table-wrap"><table class="bearers-table"><thead><tr>
+        <th>${esc(t("lblBearerName"))}</th><th>${esc(t("lblBearerDesignation"))}</th><th>${esc(t("lblBearerContact"))}</th>
+      </tr></thead><tbody>${bearers.map(b=>`<tr><td>${esc(b.name||"")}</td><td>${esc(L(b.designation))}</td><td>${esc(b.contact||"")}</td></tr>`).join("")}</tbody></table></div>` : "";
+    return pageHead(p, false) + `<div class="about-body"><p>${esc(L(content.about.p1))}</p><p>${esc(L(content.about.p2))}</p></div><div class="about-meta">${meta}</div>${bearersHtml}`;
   },
   cards(p){
-    const cards = (p.items||[]).map(a=>`<div class="club-card"><h3>${esc(L(a.title))}</h3><p>${esc(L(a.body))}</p></div>`).join("");
+    const cards = (p.items||[]).map(a=>{
+      const img = (a.photo && a.photoOn !== false) ? `<img class="card-photo" src="${esc(a.photo)}" alt="">` : "";
+      return `<div class="club-card">${img}<h3>${esc(L(a.title))}</h3><p>${esc(L(a.body))}</p></div>`;
+    }).join("");
     return pageHead(p, true) + `<div class="club-grid">${cards}</div>`;
   },
   text(p){
@@ -1368,6 +1502,7 @@ function renderPublic(){
   document.getElementById("footAddressEl").textContent = L(content.footer.address);
   document.getElementById("footRegEl").textContent = L(content.footer.reg);
   if(name) document.title = name;
+  applyTheme();
   renderNoticeTicker();
   renderNav();
   renderPanels();
@@ -1407,13 +1542,29 @@ const TYPE_LABEL_KEY = {home:"typeHome", books:"typeBooks", building:"typeBuildi
 const TEMPLATES = {
   book:  ()=>({day:bi(), title:bi(), author:bi(), tag:bi()}),
   update:()=>({date:"", image:"", title:bi(), body:bi()}),
-  item:  ()=>({title:bi(), body:bi()}),
+  item:  ()=>({title:bi(), body:bi(), photo:"", photoOn:true}),
   stat:  ()=>({label:bi(), value:bi()}),
   meta:  ()=>({lbl:bi(), val:bi()}),
   notice:()=>({id:generateId(), text:bi(), link:{type:"none", value:""}, active:true}),
   para:  ()=>bi(),
-  wn:    ()=>({title:bi(), body:bi(), link:{type:"none", value:""}})
+  wn:    ()=>({title:bi(), body:bi(), link:{type:"none", value:""}}),
+  bearer:()=>({name:"", designation:bi(), contact:""})
 };
+
+const THEME_OPTIONS = [
+  {id:"classic", labelKey:"themeClassic"},
+  {id:"navy",    labelKey:"themeNavy"},
+  {id:"forest",  labelKey:"themeForest"},
+  {id:"plum",    labelKey:"themePlum"}
+];
+const FONT_OPTIONS = [
+  {id:"classic", labelKey:"fontClassic"},
+  {id:"modern",  labelKey:"fontModern"}
+];
+function applyTheme(){
+  document.documentElement.setAttribute("data-theme", (content.site && content.site.theme) || "classic");
+  document.documentElement.setAttribute("data-font", (content.site && content.site.font) || "classic");
+}
 
 function biCols(label, path, multi){
   const v = getByPath(content, path) || {};
@@ -1425,10 +1576,21 @@ function biCols(label, path, multi){
 }
 const biF = (label, path, multi)=> `<div class="field-row">${biCols(label, path, multi)}</div>`;
 
-function itemTools(arrPath, i, len, canDelete=true){
+function imageFieldRow(labelKey, path){
+  const val = getByPath(content, path) || "";
+  const body = val
+    ? `<img class="admin-image-preview" src="${esc(val)}" alt=""><button type="button" class="del-btn" data-remove-image-target="${esc(path)}" style="margin-top:6px;">${esc(t("btnRemoveImage"))}</button>`
+    : `<input type="file" accept="image/*" data-image-target="${esc(path)}">`;
+  return `<div class="field-row"><div class="field-col"><label>${esc(t(labelKey))}</label>${body}</div></div>`;
+}
+
+function itemTools(arrPath, i, len, canDelete=true, opts={}){
+  const { lockMove=false, minIndex=0 } = opts;
+  const upDisabled = lockMove || i<=minIndex;
+  const downDisabled = lockMove || i===len-1;
   return `<div class="item-tools">
-    <button type="button" class="mini-btn" data-move="${arrPath}:${i}:-1" ${i===0 ? "disabled" : ""} title="${esc(t("btnMoveUp"))}">▲</button>
-    <button type="button" class="mini-btn" data-move="${arrPath}:${i}:1" ${i===len-1 ? "disabled" : ""} title="${esc(t("btnMoveDown"))}">▼</button>
+    <button type="button" class="mini-btn" data-move="${arrPath}:${i}:-1" ${upDisabled ? "disabled" : ""} title="${esc(t("btnMoveUp"))}">▲</button>
+    <button type="button" class="mini-btn" data-move="${arrPath}:${i}:1" ${downDisabled ? "disabled" : ""} title="${esc(t("btnMoveDown"))}">▼</button>
     ${canDelete ? `<button type="button" class="del-btn" data-del="${arrPath}:${i}">${esc(t("btnRemove"))}</button>` : ""}
   </div>`;
 }
@@ -1475,21 +1637,29 @@ function pageEditor(p, idx){
   else if(p.type === "building"){
     html += `<div class="field-row"><div class="field-col"><label>${esc(t("lblProgressPct"))}</label>
       <input type="number" min="0" max="100" data-path="building.progressPercent" value="${esc(content.building.progressPercent)}"></div></div>`;
-    html += listBlock("building.updates", (u,i,pp)=>{
-      const img = u.image
-        ? `<img class="admin-image-preview" src="${esc(u.image)}" alt=""><button type="button" class="del-btn" data-remove-image="${i}" style="margin-top:6px;">${esc(t("btnRemoveImage"))}</button>`
-        : `<input type="file" accept="image/*" data-image-upload="${i}">`;
-      return `<div class="field-row"><div class="field-col"><label>${esc(t("lblUpdateDate"))}</label><input type="date" data-path="${pp}.date" value="${esc(u.date||"")}"></div></div>`
-        + biF(t("lblUpdateTitle"), pp+".title") + biF(t("lblUpdateBody"), pp+".body", true)
-        + `<div class="field-row"><div class="field-col"><label>${esc(t("lblUpdateImage"))}</label>${img}</div></div>`;
-    }, "update", "btnAddUpdate");
+    html += listBlock("building.updates", (u,i,pp)=>
+      `<div class="field-row"><div class="field-col"><label>${esc(t("lblUpdateDate"))}</label><input type="date" data-path="${pp}.date" value="${esc(u.date||"")}"></div></div>`
+      + biF(t("lblUpdateTitle"), pp+".title") + biF(t("lblUpdateBody"), pp+".body", true)
+      + imageFieldRow("lblUpdateImage", pp+".image"),
+    "update", "btnAddUpdate");
   }
   else if(p.type === "about"){
     html += biF(t("lblAboutP1"), "about.p1", true) + biF(t("lblAboutP2"), "about.p2", true);
     html += listBlock("about.meta", (m,i,pp)=>biF(t("lblMetaLabel"), pp+".lbl") + biF(t("lblMetaValue"), pp+".val"), "meta", "btnAddMeta");
+    html += `<h4 class="admin-sub">${esc(t("secBearers"))}</h4><p class="admin-help">${esc(t("bearersHelp"))}</p>`;
+    html += listBlock("about.bearers", (b,i,pp)=>
+      `<div class="field-row">
+        <div class="field-col"><label>${esc(t("lblBearerName"))}</label><input data-path="${pp}.name" value="${esc(b.name||"")}"></div>
+        <div class="field-col"><label>${esc(t("lblBearerContact"))}</label><input data-path="${pp}.contact" value="${esc(b.contact||"")}"></div>
+      </div>` + biF(t("lblBearerDesignation"), pp+".designation"),
+    "bearer", "btnAddBearer");
   }
   else if(p.type === "cards"){
-    html += listBlock(base + ".items", (it,i,pp)=>biF(t("lblItemTitle"), pp+".title") + biF(t("lblItemBody"), pp+".body", true), "item", "btnAddItem");
+    html += listBlock(base + ".items", (it,i,pp)=>
+      biF(t("lblItemTitle"), pp+".title") + biF(t("lblItemBody"), pp+".body", true)
+      + imageFieldRow("lblCardPhoto", pp+".photo")
+      + `<label class="admin-check"><input type="checkbox" data-path="${pp}.photoOn" ${it.photoOn !== false ? "checked" : ""}> ${esc(t("lblShowPhoto"))}</label>`,
+    "item", "btnAddItem");
   }
   else if(p.type === "text"){
     html += listBlock(base + ".paragraphs", (it,i,pp)=>biF(t("lblParagraph"), pp, true), "para", "btnAddPara");
@@ -1511,13 +1681,14 @@ function renderAdminEditor(){
   html += `<details class="admin-section" data-sec="structure"${isOpen("structure")}><summary><h3>${esc(t("secStructure"))}</h3></summary>
     <p class="admin-help">${esc(t("structureHelp"))}</p>`;
   pages.forEach((p,i)=>{
-    const canDelete = p.type === "cards" || p.type === "text";
+    const isHome = i === 0;
+    const canDelete = !isHome && (p.type === "cards" || p.type === "text");
     html += `<div class="pg-row">
       <div class="pg-main">${biCols(t("lblTabTitle"), "pages."+i+".title")}</div>
       <div class="pg-side">
         <span class="badge">${esc(t(TYPE_LABEL_KEY[p.type] || "typeText"))}</span>
-        <label class="chk"><input type="checkbox" data-path="pages.${i}.visible" ${p.visible !== false ? "checked" : ""}> ${esc(t("lblShow"))}</label>
-        ${itemTools("pages", i, pages.length, canDelete)}
+        ${isHome ? "" : `<label class="chk"><input type="checkbox" data-path="pages.${i}.visible" ${p.visible !== false ? "checked" : ""}> ${esc(t("lblShow"))}</label>`}
+        ${itemTools("pages", i, pages.length, canDelete, {lockMove:isHome, minIndex:1})}
       </div>
     </div>`;
   });
@@ -1558,6 +1729,19 @@ function renderAdminEditor(){
     ${biF(t("lblSiteLocation"), "site.location")}
     ${biF(t("lblFooterAddress"), "footer.address")}
     ${biF(t("lblFooterReg"), "footer.reg")}
+    <h4 class="admin-sub">${esc(t("secAppearance"))}</h4>
+    <div class="field-row">
+      <div class="field-col"><label>${esc(t("lblColorScheme"))}</label>
+        <select data-path="site.theme" data-live-style>
+          ${THEME_OPTIONS.map(o=>`<option value="${o.id}"${(content.site.theme||"classic")===o.id ? " selected" : ""}>${esc(t(o.labelKey))}</option>`).join("")}
+        </select>
+      </div>
+      <div class="field-col"><label>${esc(t("lblFontStyle"))}</label>
+        <select data-path="site.font" data-live-style>
+          ${FONT_OPTIONS.map(o=>`<option value="${o.id}"${(content.site.font||"classic")===o.id ? " selected" : ""}>${esc(t(o.labelKey))}</option>`).join("")}
+        </select>
+      </div>
+    </div>
   </details>`;
 
   html += `<div class="admin-actions">
@@ -1640,12 +1824,13 @@ editorEl.addEventListener("click", async (e)=>{
     const [path, idx, dir] = btn.dataset.move.split(":");
     collectFormIntoContent();
     const arr = getByPath(content, path), i = Number(idx), j = i + Number(dir);
+    if(path === "pages" && (i === 0 || j === 0)) return; // Home always stays first
     if(j >= 0 && j < arr.length){ [arr[i], arr[j]] = [arr[j], arr[i]]; }
     return refreshAll();
   }
-  if(btn.dataset.removeImage !== undefined){
+  if(btn.dataset.removeImageTarget){
     collectFormIntoContent();
-    content.building.updates[Number(btn.dataset.removeImage)].image = "";
+    setPathValue(content, btn.dataset.removeImageTarget, "");
     return refreshAll();
   }
   if(btn.id === "addPageBtn"){
@@ -1681,17 +1866,22 @@ editorEl.addEventListener("click", async (e)=>{
 
 editorEl.addEventListener("change", async (e)=>{
   const el = e.target;
-  if(el.matches("[data-image-upload]")){
+  if(el.matches("[data-image-target]")){
     const file = el.files[0];
     if(!file) return;
-    const idx = Number(el.getAttribute("data-image-upload"));
+    const path = el.getAttribute("data-image-target");
     collectFormIntoContent();
     try{
-      content.building.updates[idx].image = await fileToCompressedDataURL(file);
+      setPathValue(content, path, await fileToCompressedDataURL(file));
       renderAdminEditor();
     }catch(err){
       console.warn("Could not process image", err);
     }
+    return;
+  }
+  if(el.matches("[data-live-style]")){
+    collectFormIntoContent();
+    applyTheme();
     return;
   }
   if(el.matches("[data-rerender]")){
@@ -1756,6 +1946,7 @@ document.getElementById("adminPasswordInput").addEventListener("keydown", (e)=>{
   const h = decodeURIComponent(location.hash.slice(1));
   if(h) activeTab = h;
   await loadContent();
+  applyTheme();
   applyLang("ml");
 })();
 </script>
