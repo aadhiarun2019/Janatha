@@ -8,7 +8,9 @@
     "location": {
       "ml": "കേരളാദിത്യപുരം",
       "en": "Keraladithyapuram"
-    }
+    },
+    "theme": "classic",
+    "font": "classic"
   },
   "notices": [
     {
@@ -528,6 +530,24 @@
           "ml": "ലൈബ്രറി ഭാരവാഹികൾ",
           "en": "Library committee"
         }
+      }
+    ],
+    "bearers": [
+      {
+        "name": "",
+        "designation": {
+          "ml": "പ്രസിഡന്റ്",
+          "en": "President"
+        },
+        "contact": ""
+      },
+      {
+        "name": "",
+        "designation": {
+          "ml": "സെക്രട്ടറി",
+          "en": "Secretary"
+        },
+        "contact": ""
       }
     ]
   },
