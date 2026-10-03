@@ -103,7 +103,14 @@
   .divider-leaf span{font-size:0.95rem;font-weight:700;color:var(--maroon-deep);}
 
   /* ---------- card grids ---------- */
-  .book-grid,.club-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;margin-top:22px;}
+  .club-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;margin-top:22px;}
+  /* This week's Books: a horizontal scroll strip, so however many books get
+     added, the page stays one comfortable height instead of growing taller. */
+  .book-grid{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x proximity;margin-top:22px;padding:2px 2px 14px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--line) transparent;}
+  .book-grid::-webkit-scrollbar{height:7px;}
+  .book-grid::-webkit-scrollbar-thumb{background:var(--line);border-radius:999px;}
+  .book-grid::-webkit-scrollbar-track{background:transparent;}
+  .book-grid .book-card{flex:0 0 220px;scroll-snap-align:start;}
   .book-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:18px 18px 16px;box-shadow:var(--shadow-sm);}
   .book-card .day{display:inline-block;font-size:0.72rem;font-weight:700;color:var(--maroon);background:var(--tint);padding:3px 11px;border-radius:999px;}
   .book-card h3{margin:10px 0 4px;font-size:1.04rem;color:var(--ink);line-height:1.35;}
@@ -123,11 +130,16 @@
 
   /* ---------- photos and galleries ---------- */
   .card-photo{display:block;width:calc(100% + 40px);margin:-20px -20px 14px;max-height:340px;object-fit:contain;background:rgba(255,255,255,.07);cursor:zoom-in;}
-  .card-gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:6px;margin:0 0 14px;}
-  .gallery-thumb{width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px;cursor:zoom-in;display:block;transition:transform .15s ease,opacity .15s ease;}
+  /* Photo galleries (card items + Building updates): a horizontal scroll
+     strip of thumbnails, so several photos never stretch a card tall. */
+  .card-gallery,.timeline-gallery{display:flex;gap:7px;overflow-x:auto;scroll-snap-type:x proximity;margin:0 0 14px;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.4) transparent;}
+  .card-gallery::-webkit-scrollbar,.timeline-gallery::-webkit-scrollbar{height:6px;}
+  .card-gallery::-webkit-scrollbar-thumb{background:rgba(255,255,255,.35);border-radius:999px;}
+  .timeline-gallery::-webkit-scrollbar-thumb{background:var(--line);border-radius:999px;}
+  .gallery-thumb{flex:0 0 76px;width:76px;aspect-ratio:1;object-fit:cover;border-radius:10px;cursor:zoom-in;display:block;transition:transform .15s ease,opacity .15s ease;}
   .gallery-thumb:hover{transform:scale(1.03);opacity:.92;}
+  .timeline-gallery .gallery-thumb{flex-basis:110px;width:110px;}
   .timeline-image{display:block;max-width:100%;max-height:320px;border-radius:var(--r-sm);margin:10px 0;border:1px solid var(--line);box-shadow:var(--shadow-sm);cursor:zoom-in;}
-  .timeline-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin:10px 0;max-width:560px;}
   .lightbox-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(12,10,10,.88);cursor:zoom-out;}
   .lightbox-overlay img{max-width:100%;max-height:100%;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.6);}
 
@@ -1407,6 +1419,16 @@ function L(o){
 function generateId(){
   return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ("n" + Date.now() + Math.random().toString(36).slice(2, 8));
 }
+// turns a title into a short, readable URL segment: "Youth Wing!" -> "youth-wing"
+function slugify(str){
+  return (str || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+function uniquePageId(base){
+  const existing = new Set(content.pages.map(p=>p.id));
+  let id = base || "page", i = 2;
+  while(!id || existing.has(id)){ id = (base || "page") + "-" + i; i++; }
+  return id;
+}
 function getByPath(obj, path){
   return path.split(".").reduce((cur, k)=> (cur == null ? undefined : cur[k]), obj);
 }
@@ -1700,13 +1722,30 @@ function renderPublic(){
   renderPanels();
 }
 
-function showTab(id){
+function pathFor(id){
+  return id === "home" ? "/" : "/" + encodeURIComponent(id);
+}
+// Where to land on first load: a clean path like /books wins; an old-style
+// #hash link (from before this feature existed) still works as a fallback.
+function tabFromLocation(){
+  const seg = decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g, ""));
+  if(seg) return seg;
+  const h = decodeURIComponent(location.hash.slice(1));
+  return h || "home";
+}
+function showTab(id, push){
+  if(push === undefined) push = true;
   const pages = visiblePages();
   if(id !== "admin" && !pages.some(p=>p.id === id)) id = pages.length ? pages[0].id : "admin";
   activeTab = id;
   document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active", b.dataset.tab === id));
   document.querySelectorAll(".tab-panel").forEach(p=>p.classList.toggle("active", p.dataset.panel === id));
-  try{ history.replaceState(null, "", "#" + id); }catch(e){}
+  if(push){
+    const newPath = pathFor(id);
+    if(location.pathname !== newPath){
+      try{ history.pushState({tab:id}, "", newPath); }catch(e){}
+    }
+  }
 }
 
 // ---------- language ----------
@@ -2106,7 +2145,7 @@ editorEl.addEventListener("click", async (e)=>{
     const en = document.getElementById("newPgEn").value.trim();
     if(!ml && !en){ alert(t("msgPageNeedTitle")); return; }
     collectFormIntoContent();
-    const page = {id:"p" + Date.now().toString(36) + Math.random().toString(36).slice(2,5), type, visible:true,
+    const page = {id:uniquePageId(slugify(en) || slugify(ml)), type, visible:true,
                   title:{ml, en}, heading:{ml, en}, intro:bi()};
     if(type === "cards") page.items = [];
     if(type === "text") page.paragraphs = [{ml:"", en:""}];
@@ -2224,9 +2263,9 @@ window.addEventListener("keydown", (e)=>{
   if(e.key === "Escape") document.getElementById("lightboxOverlay").hidden = true;
 });
 
-window.addEventListener("hashchange", ()=>{
-  const h = decodeURIComponent(location.hash.slice(1));
-  if(h && h !== activeTab) showTab(h);
+window.addEventListener("popstate", (e)=>{
+  const id = (e.state && e.state.tab) || tabFromLocation();
+  if(id !== activeTab) showTab(id, false);
 });
 
 async function tryUnlock(){
@@ -2246,8 +2285,7 @@ document.getElementById("adminUnlockBtn").addEventListener("click", tryUnlock);
 document.getElementById("adminPasswordInput").addEventListener("keydown", (e)=>{ if(e.key === "Enter") tryUnlock(); });
 
 (async function init(){
-  const h = decodeURIComponent(location.hash.slice(1));
-  if(h) activeTab = h;
+  activeTab = tabFromLocation();
   await loadContent();
   applyTheme();
   applyLang("ml");

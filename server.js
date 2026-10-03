@@ -130,6 +130,20 @@ function serveStatic(req, res) {
   }
   fs.readFile(filePath, (err, content) => {
     if (err) {
+      // SPA fallback: a clean tab URL like /books isn't a real file on disk —
+      // serve the page itself so the browser's own direct-load/refresh works,
+      // and the client-side router opens the right tab from the URL.
+      if (req.method === 'GET' && !path.extname(reqPath)) {
+        return fs.readFile(path.join(PUBLIC_DIR, 'index.html'), (err2, indexContent) => {
+          if (err2) {
+            res.writeHead(404, { 'Content-Type': 'text/plain' });
+            res.end('Not found');
+            return;
+          }
+          res.writeHead(200, { 'Content-Type': MIME['.html'] });
+          res.end(indexContent);
+        });
+      }
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('Not found');
       return;
