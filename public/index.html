@@ -136,12 +136,28 @@
   .card-gallery::-webkit-scrollbar,.timeline-gallery::-webkit-scrollbar{height:6px;}
   .card-gallery::-webkit-scrollbar-thumb{background:rgba(255,255,255,.35);border-radius:999px;}
   .timeline-gallery::-webkit-scrollbar-thumb{background:var(--line);border-radius:999px;}
-  .gallery-thumb{flex:0 0 76px;width:76px;aspect-ratio:1;object-fit:cover;border-radius:10px;cursor:zoom-in;display:block;transition:transform .15s ease,opacity .15s ease;}
+  .gallery-thumb{flex:0 0 112px;width:112px;aspect-ratio:1;object-fit:cover;border-radius:12px;cursor:zoom-in;display:block;transition:transform .15s ease,opacity .15s ease;}
   .gallery-thumb:hover{transform:scale(1.03);opacity:.92;}
-  .timeline-gallery .gallery-thumb{flex-basis:110px;width:110px;}
+  .timeline-gallery .gallery-thumb{flex-basis:150px;width:150px;}
+  @media (max-width:640px){
+    .gallery-thumb{flex-basis:94px;width:94px;}
+    .timeline-gallery .gallery-thumb{flex-basis:120px;width:120px;}
+  }
   .timeline-image{display:block;max-width:100%;max-height:320px;border-radius:var(--r-sm);margin:10px 0;border:1px solid var(--line);box-shadow:var(--shadow-sm);cursor:zoom-in;}
   .lightbox-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(12,10,10,.88);cursor:zoom-out;}
   .lightbox-overlay img{max-width:100%;max-height:100%;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.6);}
+  .lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;
+    border:none;background:rgba(255,255,255,.14);color:#fff;font-size:2.1rem;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;transition:background .2s ease;}
+  .lightbox-nav:hover{background:rgba(255,255,255,.32);}
+  .lightbox-prev{left:14px;}
+  .lightbox-next{right:14px;}
+  .lightbox-counter{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.9);
+    font-size:0.8rem;font-weight:600;background:rgba(0,0,0,.4);padding:5px 14px;border-radius:999px;}
+  @media (max-width:640px){
+    .lightbox-nav{width:40px;height:40px;font-size:1.7rem;}
+    .lightbox-prev{left:6px;} .lightbox-next{right:6px;}
+  }
 
   /* ---------- building progress ---------- */
   .progress-wrap{margin:22px 0 32px;padding:18px 20px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);box-shadow:var(--shadow-sm);}
@@ -169,6 +185,10 @@
   /* ---------- footer ---------- */
   footer{margin-top:44px;padding:26px 6px 0;text-align:center;color:var(--ink-soft);font-size:0.82rem;border-top:1px solid var(--line);}
   footer .foot-name{color:var(--maroon-deep);font-weight:700;display:block;margin-bottom:3px;}
+  .social-links{display:flex;justify-content:center;gap:16px;margin-top:14px;}
+  .social-links[hidden]{display:none;}
+  .social-links a{color:var(--ink-soft);display:inline-flex;transition:color .2s ease,transform .2s ease;}
+  .social-links a:hover{color:var(--maroon);transform:translateY(-2px);}
   .form-msg{font-size:0.82rem;color:var(--maroon);font-weight:600;min-height:1.2em;}
   [hidden]{display:none !important;}
 
@@ -330,12 +350,18 @@
     </section>
   </main>
 
-  <div class="lightbox-overlay" id="lightboxOverlay" hidden><img id="lightboxImg" src="" alt=""></div>
+  <div class="lightbox-overlay" id="lightboxOverlay" hidden>
+    <button type="button" class="lightbox-nav lightbox-prev" id="lightboxPrev" aria-label="Previous photo">&#8249;</button>
+    <img id="lightboxImg" src="" alt="">
+    <button type="button" class="lightbox-nav lightbox-next" id="lightboxNext" aria-label="Next photo">&#8250;</button>
+    <span class="lightbox-counter" id="lightboxCounter" hidden></span>
+  </div>
 
   <footer>
     <span class="foot-name" id="footNameEl"></span>
     <span id="footAddressEl"></span><br>
     <span id="footRegEl"></span>
+    <div class="social-links" id="socialLinks" hidden></div>
   </footer>
 </div>
 
@@ -765,6 +791,18 @@ const dict = {
   "ml": "വെബ്സൈറ്റ് ലോഗോ",
   "en": "Website logo"
  },
+ "secSocial": {
+  "ml": "സോഷ്യൽ മീഡിയ ലിങ്കുകൾ",
+  "en": "Social media links"
+ },
+ "lblFacebook": {
+  "ml": "ഫേസ്ബുക്ക് പേജ് ലിങ്ക്",
+  "en": "Facebook page link"
+ },
+ "lblInstagram": {
+  "ml": "ഇൻസ്റ്റാഗ്രാം പ്രൊഫൈൽ ലിങ്ക്",
+  "en": "Instagram profile link"
+ },
  "logoHelp": {
   "ml": "ചതുരാകൃതിയിലുള്ള ചിത്രം (PNG/JPG) ഉപയോഗിക്കുക. ഹെഡറിലും ഹോം പേജിലും ബ്രൗസർ ഐക്കണായും ഇത് കാണിക്കും.",
   "en": "Use a square-ish image (PNG/JPG). It shows in the header, on the Home banner and as the browser tab icon."
@@ -851,7 +889,11 @@ const defaultContent = {
    "en": "Keraladithyapuram"
   },
   "theme": "classic",
-  "font": "classic"
+  "font": "classic",
+  "social": {
+   "facebook": "",
+   "instagram": ""
+  }
  },
  "notices": [
   {
@@ -1444,7 +1486,12 @@ function setPathValue(obj, path, value){
 function safeUrl(u){
   u = (u || "").trim();
   if(!u) return "";
-  if(/^www\./i.test(u)) u = "https://" + u;
+  // Someone typing a link by hand rarely types "https://" — accept a bare
+  // domain (facebook.com/..., www.site.in) and add it, but never anything
+  // that isn't a recognisable web/contact link (e.g. javascript:, data:).
+  if(!/^[a-z][a-z0-9+.-]*:/i.test(u) && /^[a-z0-9-]+(\.[a-z0-9-]+)+(\/|$|\?|#)/i.test(u)){
+    u = "https://" + u;
+  }
   return /^(https?:\/\/|mailto:|tel:)/i.test(u) ? u : "";
 }
 
@@ -1492,6 +1539,8 @@ function normalizeContent(raw){
     ["site","hero","whatsNew","footer","books","building","about","notices","stats","pages"].forEach(k=>{
       if(raw[k] == null) raw[k] = d[k];
     });
+    // content saved before Facebook/Instagram links existed won't have site.social yet
+    raw.site.social = Object.assign({facebook:"", instagram:""}, raw.site.social || {});
     if(!Array.isArray(raw.pages)) raw.pages = d.pages;
     if(!Array.isArray(raw.notices)) raw.notices = [];
     if(!Array.isArray(raw.stats)) raw.stats = [];
@@ -1715,6 +1764,7 @@ function renderPublic(){
   document.getElementById("footNameEl").textContent = name;
   document.getElementById("footAddressEl").textContent = L(content.footer.address);
   document.getElementById("footRegEl").textContent = L(content.footer.reg);
+  renderSocialLinks();
   if(name) document.title = name;
   applyTheme();
   renderNoticeTicker();
@@ -1733,6 +1783,23 @@ function tabFromLocation(){
   const h = decodeURIComponent(location.hash.slice(1));
   return h || "home";
 }
+const SOCIAL_ICONS = {
+  facebook: '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.77-3.9 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.63.78-1.63 1.57v1.88h2.78l-.44 2.91h-2.34V22c4.78-.76 8.44-4.92 8.44-9.94"/></svg>',
+  instagram: '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M12 2c-2.72 0-3.06.01-4.12.06-1.06.05-1.79.22-2.43.47-.66.26-1.22.6-1.77 1.16-.56.55-.9 1.11-1.16 1.77-.25.64-.42 1.37-.47 2.43C2 8.94 2 9.28 2 12s.01 3.06.06 4.12c.05 1.06.22 1.79.47 2.43.26.66.6 1.22 1.16 1.77.55.56 1.11.9 1.77 1.16.64.25 1.37.42 2.43.47C8.94 22 9.28 22 12 22s3.06-.01 4.12-.06c1.06-.05 1.79-.22 2.43-.47.66-.26 1.22-.6 1.77-1.16.56-.55.9-1.11 1.16-1.77.25-.64.42-1.37.47-2.43C22 15.06 22 14.72 22 12s-.01-3.06-.06-4.12c-.05-1.06-.22-1.79-.47-2.43-.26-.66-.6-1.22-1.16-1.77-.55-.56-1.11-.9-1.77-1.16-.64-.25-1.37-.42-2.43-.47C15.06 2 14.72 2 12 2m0 1.8c2.67 0 2.99.01 4.04.06.98.04 1.5.21 1.86.34.47.18.8.4 1.15.75.35.35.57.68.75 1.15.13.36.3.88.34 1.86.05 1.05.06 1.37.06 4.04s-.01 2.99-.06 4.04c-.04.98-.21 1.5-.34 1.86-.18.47-.4.8-.75 1.15-.35.35-.68.57-1.15.75-.36.13-.88.3-1.86.34-1.05.05-1.37.06-4.04.06s-2.99-.01-4.04-.06c-.98-.04-1.5-.21-1.86-.34-.47-.18-.8-.4-1.15-.75-.35-.35-.57-.68-.75-1.15-.13-.36-.3-.88-.34-1.86C3.8 14.99 3.8 14.67 3.8 12s.01-2.99.06-4.04c.04-.98.21-1.5.34-1.86.18-.47.4-.8.75-1.15.35-.35.68-.57 1.15-.75.36-.13.88-.3 1.86-.34C9.01 3.8 9.33 3.8 12 3.8m0 3.05a5.15 5.15 0 1 0 0 10.3 5.15 5.15 0 0 0 0-10.3m0 8.5a3.35 3.35 0 1 1 0-6.7 3.35 3.35 0 0 1 0 6.7m5.35-8.7a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0"/></svg>'
+};
+function renderSocialLinks(){
+  const social = (content.site && content.site.social) || {};
+  const el = document.getElementById("socialLinks");
+  const links = [["facebook", social.facebook], ["instagram", social.instagram]]
+    .map(([key, raw]) => [key, safeUrl(raw)])
+    .filter(([, url]) => url);
+  if(!links.length){ el.hidden = true; el.innerHTML = ""; return; }
+  el.innerHTML = links.map(([key, url]) =>
+    `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="${key}">${SOCIAL_ICONS[key]}</a>`
+  ).join("");
+  el.hidden = false;
+}
+
 function showTab(id, push){
   if(push === undefined) push = true;
   const pages = visiblePages();
@@ -1986,6 +2053,13 @@ function renderAdminEditor(){
     ${biF(t("lblSiteLocation"), "site.location")}
     ${biF(t("lblFooterAddress"), "footer.address")}
     ${biF(t("lblFooterReg"), "footer.reg")}
+    <h4 class="admin-sub">${esc(t("secSocial"))}</h4>
+    <div class="field-row">
+      <div class="field-col"><label>${esc(t("lblFacebook"))}</label>
+        <input data-path="site.social.facebook" placeholder="https://facebook.com/yourpage" value="${esc((content.site.social && content.site.social.facebook) || "")}"></div>
+      <div class="field-col"><label>${esc(t("lblInstagram"))}</label>
+        <input data-path="site.social.instagram" placeholder="https://instagram.com/yourpage" value="${esc((content.site.social && content.site.social.instagram) || "")}"></div>
+    </div>
     <h4 class="admin-sub">${esc(t("secAppearance"))}</h4>
     <div class="field-row"><div class="field-col" style="flex-basis:100%;">
       <label>${esc(t("lblLogo"))}</label>
@@ -2248,19 +2322,41 @@ document.addEventListener("click", (e)=>{
   if(nav) nav.scrollIntoView({behavior:"smooth", block:"start"});
 });
 
-// click a photo to see it full size; click anywhere or press Esc to close
+// click a photo to see it full size. If it's part of a gallery, Prev/Next
+// (or the left/right arrow keys) step through every photo in that same gallery.
+let lbGroup = [], lbIndex = 0;
+function showLightboxAt(i){
+  if(!lbGroup.length) return;
+  lbIndex = (i + lbGroup.length) % lbGroup.length;
+  document.getElementById("lightboxImg").src = lbGroup[lbIndex].getAttribute("data-lightbox");
+  document.getElementById("lightboxOverlay").hidden = false;
+  const multi = lbGroup.length > 1;
+  document.getElementById("lightboxPrev").hidden = !multi;
+  document.getElementById("lightboxNext").hidden = !multi;
+  const counter = document.getElementById("lightboxCounter");
+  counter.hidden = !multi;
+  if(multi) counter.textContent = (lbIndex + 1) + " / " + lbGroup.length;
+}
 document.addEventListener("click", (e)=>{
   const ov = document.getElementById("lightboxOverlay");
+  if(e.target.closest("#lightboxPrev")){ showLightboxAt(lbIndex - 1); return; }
+  if(e.target.closest("#lightboxNext")){ showLightboxAt(lbIndex + 1); return; }
   const img = e.target.closest("[data-lightbox]");
   if(img){
-    document.getElementById("lightboxImg").src = img.getAttribute("data-lightbox");
-    ov.hidden = false;
+    const scope = img.closest(".card-gallery, .timeline-gallery") || img.parentElement;
+    lbGroup = Array.from((scope || document).querySelectorAll("[data-lightbox]"));
+    if(!lbGroup.length) lbGroup = [img];
+    showLightboxAt(lbGroup.indexOf(img));
     return;
   }
-  if(!ov.hidden && e.target.closest("#lightboxOverlay")) ov.hidden = true;
+  if(!ov.hidden && e.target.closest("#lightboxOverlay") && !e.target.closest(".lightbox-nav")) ov.hidden = true;
 });
 window.addEventListener("keydown", (e)=>{
-  if(e.key === "Escape") document.getElementById("lightboxOverlay").hidden = true;
+  const ov = document.getElementById("lightboxOverlay");
+  if(ov.hidden) return;
+  if(e.key === "Escape") ov.hidden = true;
+  else if(e.key === "ArrowRight") showLightboxAt(lbIndex + 1);
+  else if(e.key === "ArrowLeft") showLightboxAt(lbIndex - 1);
 });
 
 window.addEventListener("popstate", (e)=>{
