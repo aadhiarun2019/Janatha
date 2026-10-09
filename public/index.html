@@ -1547,6 +1547,7 @@ function normalizeContent(raw){
     if(!Array.isArray(raw.books)) raw.books = [];
     if(!raw.building.updates) raw.building.updates = [];
     if(!raw.about.meta) raw.about.meta = [];
+    if(!Array.isArray(raw.about.bearers)) raw.about.bearers = [];
     if(!raw.whatsNew.items) raw.whatsNew.items = [];
     raw.pages.forEach(p=>{
       if(!p.id) p.id = generateId();
@@ -2182,7 +2183,9 @@ editorEl.addEventListener("click", async (e)=>{
   if(btn.dataset.add){
     const [path, kind] = btn.dataset.add.split("|");
     collectFormIntoContent();
-    getByPath(content, path).push(TEMPLATES[kind]());
+    let list = getByPath(content, path);
+    if(!Array.isArray(list)){ setPathValue(content, path, []); list = getByPath(content, path); }
+    list.push(TEMPLATES[kind]());
     return refreshAll();
   }
   if(btn.dataset.del){
